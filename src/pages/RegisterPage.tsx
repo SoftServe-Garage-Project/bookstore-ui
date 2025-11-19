@@ -2,6 +2,9 @@ import { use, useState } from "react";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import AuthFormWrapper from "../components/AuthFormWrapper";
+import { authService } from "../services/authService";
+import styles from "./RegisterPage.module.css";
+
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -10,6 +13,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
   const validate = () => {
     if (!name.trim()) return "Name is required";
     if (!email.includes("@")) return "Invalid email";
@@ -17,32 +21,26 @@ export default function RegisterPage() {
     if (password !== passwordConfirm) return "Passwords do not match";
     return null;
   };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
     const validationError = validate();
     if (validationError) {
       setError(validationError);
       return;
     }
+
     setLoading(true);
+
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: name,
-          email: email,
-          password: password,
-        }),
+      await authService.register({
+        username: name,
+        email: email,
+        password: password,
       });
-      if (res.status === 409) {
-        throw new Error("Email вже використовується");
-      }
-      if (!res.ok) {
-        throw new Error("Помилка реєстрації");
-      }
       setSuccess("Реєстрація успішна! Перенаправлення...");
       setTimeout(() => {
         window.location.href = "/login";
@@ -53,41 +51,38 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
   return (
     <AuthFormWrapper>
-      {" "}
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-        Реєстрація
-      </h2>{" "}
+      <h2 className={styles.title}>Реєстрація</h2>
+      
       <form onSubmit={handleRegister}>
-        {" "}
-        <Input label="Ім'я" value={name} onChange={setName} />{" "}
-        <Input label="Email" value={email} onChange={setEmail} type="email" />{" "}
+        <Input label="Ім'я" value={name} onChange={setName} />
+        <Input label="Email" value={email} onChange={setEmail} type="email" />
         <Input
           label="Пароль"
           value={password}
           onChange={setPassword}
           type="password"
-        />{" "}
+        />
         <Input
           label="Підтвердження пароля"
           value={passwordConfirm}
           onChange={setPasswordConfirm}
           type="password"
-        />{" "}
-        {error && <p style={{ color: "red", marginTop: "10px" }}> {error} </p>}{" "}
-        {success && (
-          <p style={{ color: "green", marginTop: "10px" }}> {success} </p>
-        )}{" "}
+        />
+
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p className={styles.success}>{success}</p>}
+
         <Button disabled={loading}>
-          {" "}
-          {loading ? "Завантаження..." : "Зареєструватися"}{" "}
-        </Button>{" "}
-      </form>{" "}
-      <div style={{ marginTop: "15px", textAlign: "center" }}>
-        {" "}
-        <a href="/login">Вже є акаунт? Увійти</a>{" "}
-      </div>{" "}
+          {loading ? "Завантаження..." : "Зареєструватися"}
+        </Button>
+      </form>
+
+      <div className={styles.linkContainer}>
+        <a href="/login" className={styles.link}>Вже є акаунт? Увійти</a>
+      </div>
     </AuthFormWrapper>
   );
 }

@@ -1,3 +1,6 @@
+import { useId } from 'react';
+import styles from './Input.module.css';
+
 type InputProps = {
   label: string;
   type?: string;
@@ -6,18 +9,20 @@ type InputProps = {
 };
 
 export default function Input({ label, type = "text", value, onChange }: InputProps) {
+  const inputId = useId();
+
   return (
-    <div style={{ marginBottom: "12px", display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px" }}>{label}</label>
+    <div className={styles.container}>
+      <label htmlFor={inputId} className={styles.label}>
+        {label}
+      </label>
+      
       <input
+        id={inputId} 
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          padding: "8px",
-          borderRadius: "6px",
-          border: "1px solid #aaa",
-        }}
+        className={styles.input}
       />
     </div>
   );

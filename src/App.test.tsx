@@ -7,10 +7,3 @@ test("renders RegisterPage component", () => {
   expect(title).toBeInTheDocument();
 });
 
-/*
-test("renders LoginPage component", () => {
-  render(<LoginPage />);
-  const title = screen.getByText("Вхід");
-  expect(title).toBeInTheDocument();
-});
-*/
