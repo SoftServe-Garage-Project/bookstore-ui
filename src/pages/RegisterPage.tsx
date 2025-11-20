@@ -3,6 +3,7 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import AuthFormWrapper from "../components/AuthFormWrapper";
 import { authService } from "../services/authService";
+import { validateRegistration } from '../utils/validation';
 import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {
@@ -14,23 +15,16 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const validate = () => {
-    if (!name.trim()) return "Name is required";
-    if (!email.includes("@")) return "Invalid email";
-    if (password.length < 8) return "Password must be at least 8 characters";
-    if (password !== passwordConfirm) return "Passwords do not match";
-    return null;
-  };
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    const validationError = validate();
+    const validationError = validateRegistration({ name, email, password, passwordConfirm }); 
+    
     if (validationError) {
-      setError(validationError);
-      return;
+        setError(validationError);
+        return;
     }
 
     setLoading(true);
