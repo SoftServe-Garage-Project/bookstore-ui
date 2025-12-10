@@ -53,27 +53,17 @@ export const authService = {
       throw new Error("Невірний логін або пароль");
     }
 
-    const tokens: AuthResponse = await res.json();
-    this.saveEmail(tokens.email);
-    
-    return tokens;
+    const response = await res.json();
+    sessionStorage.setItem(EMAIL, data.email);
+    return response;
   },
 
-  async refreshTokens() {
-    const res = await fetch(`${API_BASE}/refresh`, { 
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      this.clearEmail();
-      throw new Error("Failed to refresh");
+  async getCurrentUser(): Promise<{ email: string } | null> {
+    const email = sessionStorage.getItem(EMAIL);
+    if (email) {
+      return { email };
     }
-
-    const newTokens: AuthResponse = await res.json();
-    this.saveEmail(newTokens.email);
-    return newTokens.accessToken;
+    return null;
   },
 
   async logout() {
@@ -89,36 +79,8 @@ export const authService = {
     } catch (error) {
       console.error("Logout request failed", error);
     } finally {
-      this.clearEmail();
+      sessionStorage.removeItem(EMAIL);
     }
   },
-
-  saveTokens(tokens: AuthResponse) {
-    localStorage.setItem(EMAIL, tokens.email);
-  },
-
-  clearTokens() {
-    localStorage.removeItem(EMAIL);
-  },
-
-  saveEmail(email: string) {
-    localStorage.setItem(EMAIL, email);
-  },
-
-  clearEmail() {
-    localStorage.removeItem(EMAIL);
-  },
-
-  getAccessToken() {
-    return null;
-  },
-
-  getRefreshToken() {
-    return null;
-  },
-
-  getUserEmail() {
-    return localStorage.getItem(EMAIL);
-  }
 };
 
