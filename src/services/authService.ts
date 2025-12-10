@@ -101,7 +101,6 @@ export const authService = {
       console.error("Logout request failed", error);
     } finally {
       this.clearTokens();
-      window.location.href = "/";
     }
   },
 

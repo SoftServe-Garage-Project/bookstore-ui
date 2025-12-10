@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import Button from "../components/Button";
 import styles from "./HomePage.module.css";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
 
@@ -19,6 +21,7 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     await authService.logout();
+    navigate("/login");
   };
 
   return (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import AuthFormWrapper from "../components/AuthFormWrapper";
@@ -6,6 +7,7 @@ import { authService } from "../services/authService";
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export default function LoginPage() {
 
     try {
       await authService.login({ email, password });
-      window.location.href = "/"; 
+      navigate("/");
     } catch (err: any) {
       setError(err.message || "Помилка входу");
     } finally {
