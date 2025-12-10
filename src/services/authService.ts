@@ -17,8 +17,6 @@ interface AuthResponse {
 }
 
 const EMAIL = "email";
-const ACCESS_TOKEN_KEY = "accessToken";
-const REFRESH_TOKEN_KEY = "refreshToken";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
@@ -56,72 +54,67 @@ export const authService = {
     }
 
     const tokens: AuthResponse = await res.json();
-    this.saveTokens(tokens);
+    this.saveEmail(tokens.email);
     
     return tokens;
   },
 
   async refreshTokens() {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) throw new Error("No refresh token");
     const res = await fetch(`${API_BASE}/refresh`, { 
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       credentials: 'include',
-      body: JSON.stringify({ refreshToken }),
     });
 
     if (!res.ok) {
-      this.clearTokens();
+      this.clearEmail();
       throw new Error("Failed to refresh");
     }
 
     const newTokens: AuthResponse = await res.json();
-    this.saveTokens(newTokens);
+    this.saveEmail(newTokens.email);
     return newTokens.accessToken;
   },
 
   async logout() {
-    const accessToken = this.getAccessToken();
-    const refreshToken = this.getRefreshToken();
-
     try {
-      if (accessToken && refreshToken) {
-        await fetch(`${API_BASE}/logout`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          credentials: 'include',
-          body: JSON.stringify({ accessToken, refreshToken }),
-        });
-      }
+      await fetch(`${API_BASE}/logout`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: 'include',
+      });
     } catch (error) {
       console.error("Logout request failed", error);
     } finally {
-      this.clearTokens();
+      this.clearEmail();
     }
   },
 
   saveTokens(tokens: AuthResponse) {
     localStorage.setItem(EMAIL, tokens.email);
-    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
   },
 
   clearTokens() {
     localStorage.removeItem(EMAIL);
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  saveEmail(email: string) {
+    localStorage.setItem(EMAIL, email);
+  },
+
+  clearEmail() {
+    localStorage.removeItem(EMAIL);
   },
 
   getAccessToken() {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return null;
   },
 
   getRefreshToken() {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return null;
   },
 
   getUserEmail() {
