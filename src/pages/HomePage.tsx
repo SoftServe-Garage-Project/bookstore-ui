@@ -9,11 +9,11 @@ export default function HomePage() {
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedEmail = authService.getUserEmail();
-
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
+    const storedEmail = authService.getCurrentUser().then(storedEmail => {
+      if (storedEmail) {
+        setEmail(storedEmail.email);
+      }
+    });
   }, []);
 
   const handleLogout = async () => {
