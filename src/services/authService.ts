@@ -17,6 +17,8 @@ interface AuthResponse {
 }
 
 const EMAIL = "email";
+const ACCESS_TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
@@ -45,7 +47,7 @@ export const authService = {
     const res = await fetch(`${API_BASE}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      credentials: 'include',
+      credentials: 'include' as RequestCredentials,
       body: JSON.stringify(data),
     });
 
@@ -53,34 +55,103 @@ export const authService = {
       throw new Error("Невірний логін або пароль");
     }
 
-    const response = await res.json();
-    sessionStorage.setItem(EMAIL, data.email);
-    return response;
+    const tokens: AuthResponse = await res.json();
+    this.saveTokens(tokens);
+    
+    return tokens;
   },
 
-  async getCurrentUser(): Promise<{ email: string } | null> {
-    const email = sessionStorage.getItem(EMAIL);
-    if (email) {
-      return { email };
+  async refreshTokens() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) throw new Error("No refresh token");
+    const res = await fetch(`${API_BASE}/refresh`, { 
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      credentials: 'include' as RequestCredentials,
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!res.ok) {
+      this.clearTokens();
+      throw new Error("Failed to refresh");
     }
-    return null;
+
+    const newTokens: AuthResponse = await res.json();
+    this.saveTokens(newTokens);
+    return newTokens.accessToken;
   },
 
-  async logout() {
+  async refreshToken(): Promise<boolean> {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!refreshToken) return false;
+    
     try {
-      await fetch(`${API_BASE}/logout`, {
+      const res = await fetch(`${API_BASE}/refresh`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Authorization": `Bearer ${refreshToken}`
         },
-        credentials: 'include',
+        credentials: 'include' as RequestCredentials,
       });
+      
+      if (res.ok) {
+        const data: AuthResponse = await res.json();
+        localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
+        return true;
+      }
+    } catch (error) {
+      console.error("Token refresh failed", error);
+    }
+    
+    return false;
+  },
+
+  async logout() {
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
+
+    try {
+      if (accessToken && refreshToken) {
+        await fetch(`${API_BASE}/logout`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          credentials: 'include' as RequestCredentials,
+          body: JSON.stringify({ accessToken, refreshToken }),
+        });
+      }
     } catch (error) {
       console.error("Logout request failed", error);
     } finally {
-      sessionStorage.removeItem(EMAIL);
+      this.clearTokens();
     }
   },
+
+  saveTokens(tokens: AuthResponse) {
+    localStorage.setItem(EMAIL, tokens.email);
+    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+  },
+
+  clearTokens() {
+    localStorage.removeItem(EMAIL);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  getAccessToken() {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
+  },
+
+  getRefreshToken() {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  },
+
+  getUserEmail() {
+    return localStorage.getItem(EMAIL);
+  }
 };
 
