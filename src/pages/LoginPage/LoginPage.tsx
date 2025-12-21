@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import AuthFormWrapper from "../components/AuthFormWrapper";
-import { authService } from "../services/authService";
+import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
+import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
+import { authService } from "../../services/authService";
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
@@ -38,7 +38,7 @@ export default function LoginPage() {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <Button disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? "Вхід..." : "Увійти"}
         </Button>
       </form>
