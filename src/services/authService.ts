@@ -43,7 +43,6 @@ export const authService = {
   },
 
   async login(data: LoginData) {
-    console.log("Logging in with data:", data);
     const res = await fetch(`${API_BASE}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -61,50 +60,37 @@ export const authService = {
     return tokens;
   },
 
-  async refreshTokens() {
+  async refreshTokens(): Promise<string> {
     const refreshToken = this.getRefreshToken();
-    if (!refreshToken) throw new Error("No refresh token");
-    const res = await fetch(`${API_BASE}/refresh`, { 
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      credentials: 'include' as RequestCredentials,
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    if (!res.ok) {
+    
+    if (!refreshToken) {
       this.clearTokens();
-      throw new Error("Failed to refresh");
+      throw new Error("No refresh token available");
     }
 
-    const newTokens: AuthResponse = await res.json();
-    this.saveTokens(newTokens);
-    return newTokens.accessToken;
-  },
-
-  async refreshToken(): Promise<boolean> {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    if (!refreshToken) return false;
-    
     try {
       const res = await fetch(`${API_BASE}/refresh`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${refreshToken}`
+          "Authorization": `Bearer ${refreshToken}` 
         },
         credentials: 'include' as RequestCredentials,
       });
-      
-      if (res.ok) {
-        const data: AuthResponse = await res.json();
-        localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
-        return true;
+
+      if (!res.ok) {
+        throw new Error("Refresh failed");
       }
+
+      const data: AuthResponse = await res.json();
+      this.saveTokens(data); 
+
+      return data.accessToken;
     } catch (error) {
-      console.error("Token refresh failed", error);
+      this.clearTokens();
+      console.error("Token refresh critical error:", error);
+      throw error;
     }
-    
-    return false;
   },
 
   async logout() {
