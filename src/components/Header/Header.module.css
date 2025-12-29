@@ -1,0 +1,28 @@
+.header {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.userEmail {
+  color: #666;
+  font-size: 0.9rem;
+}
