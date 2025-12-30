@@ -7,6 +7,8 @@
   flex-direction: column;
   flex-shrink: 0;
   height: 100%;
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
 }
 
 .section {
@@ -85,4 +87,52 @@
 .actions {
   margin-top: auto;
   padding-top: 20px;
+}
+
+.burgerBtn {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 110;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+}
+
+@media (max-width: 768px) {
+  .burgerBtn {
+    display: block;
+  }
+
+  .sidePanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .sidePanel.open {
+    transform: translateX(0);
+  }
+
+  .overlay.open {
+    display: block;
+  }
 }

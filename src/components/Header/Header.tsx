@@ -9,10 +9,17 @@ interface HeaderProps {
 export default function Header({ userEmail, onLogout }: HeaderProps) {
   return (
     <header className={styles.header}>
-      <div className={styles.logo}>Bookstore</div>
-      <div className={styles.userSection}>
-        <span className={styles.userEmail}>{userEmail}</span>
-        <Button onClick={onLogout} variant="secondary">Logout</Button>
+      <div className={styles.container}>
+        <div className={styles.logo}>Bookstore</div>
+        <div className={styles.userSection}>
+          <span className={styles.userEmail} title={userEmail}>
+            {userEmail}
+          </span>
+          <Button onClick={onLogout} variant="secondary">
+            Logout
+          </Button>
+        </div>
+
       </div>
     </header>
   );

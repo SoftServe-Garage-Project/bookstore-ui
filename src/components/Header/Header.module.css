@@ -2,18 +2,27 @@
   height: 60px;
   background: white;
   border-bottom: 1px solid #ddd;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
   padding: 0 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  flex-shrink: 0;
+  height: 100%;
 }
 
 .logo {
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
+  flex-shrink: 0; 
 }
 
 .userSection {
@@ -25,4 +34,33 @@
 .userEmail {
   color: #666;
   font-size: 0.9rem;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+@media (max-width: 768px) {
+  .userEmail {
+    max-width: 100px;
+  }
+
+  .logo {
+    margin-left: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  .userSection {
+    gap: 8px;
+  }
+
+  .userEmail {
+    display: none;
+  }
 }
