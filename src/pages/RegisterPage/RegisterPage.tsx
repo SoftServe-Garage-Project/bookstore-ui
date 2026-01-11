@@ -71,7 +71,7 @@ export default function RegisterPage() {
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
 
-        <Button disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? "Завантаження..." : "Зареєструватися"}
         </Button>
       </form>

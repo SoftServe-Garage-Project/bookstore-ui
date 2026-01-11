@@ -138,6 +138,21 @@ export const authService = {
 
   getUserEmail() {
     return localStorage.getItem(EMAIL);
+  },
+
+  async forgotPassword(email: string) {
+  const res = await fetch(`${API_BASE}/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Something went wrong");
   }
+
+  return true;
+},
+
 };
 

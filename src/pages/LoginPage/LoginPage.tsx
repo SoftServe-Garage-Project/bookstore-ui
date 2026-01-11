@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
@@ -44,8 +44,12 @@ export default function LoginPage() {
       </form>
 
       <div className={styles.links}>
-        <a href="/register" className={styles.registerLink}>Немає акаунту? Реєстрація</a>
-        <a href="/forgot-password" className={styles.forgotLink}>Забули пароль?</a>
+        <Link to="/register" className={styles.registerLink}>
+          Немає акаунту? Реєстрація
+        </Link>
+        <Link to="/forgot-password" className={styles.forgotLink}>
+          Забули пароль?
+        </Link>
       </div>
     </AuthFormWrapper>
   );
