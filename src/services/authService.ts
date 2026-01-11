@@ -152,7 +152,22 @@ export const authService = {
   }
 
   return true;
-},
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+  const res = await fetch(`${API_BASE}/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, newPassword }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Error resetting password");
+  }
+
+  return true;
+  }
 
 };
 
