@@ -6,6 +6,7 @@ export interface Author {
 }
 
 export interface Book {
+  id: number;
   title: string;
   description: string;
   genre: string;
@@ -98,4 +99,16 @@ export const fetchGenres = async (): Promise<Genre[]> => {
 
   const data = await response.json();
   return data.content || [];
+};
+
+export const fetchBookById = async (id: number): Promise<Book | null> => {
+  try {
+    //`${API_URL}/${id}`
+    const response = await fetchBooks({ page: 0, size: 100 });
+    const book = response.content.find((b) => b.id === id);
+    return book || null;
+  } catch (error) {
+    console.error("Error fetching book by id:", error);
+    return null;
+  }
 };

@@ -89,20 +89,6 @@
   padding-top: 20px;
 }
 
-.burgerBtn {
-  display: none;
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 110;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
 .overlay {
   display: none;
   position: fixed;
@@ -115,9 +101,6 @@
 }
 
 @media (max-width: 768px) {
-  .burgerBtn {
-    display: block;
-  }
 
   .sidePanel {
     position: fixed;

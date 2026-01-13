@@ -1,4 +1,6 @@
 .header {
+  position: sticky;
+  top: 0;
   height: 60px;
   background: white;
   border-bottom: 1px solid #ddd;
@@ -16,6 +18,7 @@
   max-width: 1200px;
   padding: 0 20px;
   height: 100%;
+  position: relative;
 }
 
 .logo {
@@ -29,6 +32,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  margin-right: 10px;
 }
 
 .userEmail {
@@ -41,17 +45,41 @@
   max-width: 200px;
 }
 
+.burgerBtn {
+  display: none;
+  position: absolute; 
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  line-height: 1;
+}
+
 @media (max-width: 768px) {
+  .burgerBtn {
+    display: block;
+  }
   .userEmail {
     max-width: 100px;
   }
+  .logoWithMargin {
+    margin-left: 50px;
+  }
 
-  .logo {
-    margin-left: 60px;
+  .logoWithoutMargin {
+    margin-left: 10px;
   }
 }
 
 @media (max-width: 480px) {
+  .burgerBtn {
+    display: block;
+  }
   .container {
     padding: 0 10px;
   }

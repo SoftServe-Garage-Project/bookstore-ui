@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // Добавили useSearchParams
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "../../services/authService";
 import { fetchBooks, Book, PageResponse, BookFilterParams } from "../../services/bookService";
 
@@ -19,6 +19,8 @@ export default function HomePage() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const filters: BookFilterParams = useMemo(() => {
     return {
@@ -64,10 +66,7 @@ export default function HomePage() {
     loadBooks();
   }, [filters, navigate]);
 
-  const handleLogout = async () => {
-    await authService.logout();
-    navigate("/login");
-  };
+  
 
   const updateQueryParams = (newParams: Partial<BookFilterParams>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -115,18 +114,21 @@ export default function HomePage() {
   
   return (
     <div className={styles.layout}>
-      <Header 
-        userEmail={authService.getUserEmail() || 'Guest'} 
-        onLogout={handleLogout} 
+      <Header
+        enableSideMenu={true}
+        isMenuOpen={isMenuOpen}
+        onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
       <div className={styles.mainContainer}>
-        <SidePanel 
+        <SidePanel
           selectedGenre={filters.genreName}
           selectedSort={filters.sort}
           onGenreChange={handleGenreChange}
           onTitleSearch={handleTitleSearch}
           onSortChange={handleSortChange}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
         />
 
         <main className={styles.content}>
@@ -142,9 +144,8 @@ export default function HomePage() {
           )}
           
           <div className={styles.booksGrid}>
-            {books.map((book, index) => {
-              const uniqueKey = book.title + index; // Лучше использовать ID
-              return <BookCard key={uniqueKey} book={book} />;
+            {books.map((book) => {
+              return <BookCard key={book.id} book={book} />;
             })}
           </div>
 
