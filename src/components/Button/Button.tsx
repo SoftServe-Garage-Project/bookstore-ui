@@ -10,37 +10,67 @@ export type ButtonVariant =
   | 'link' 
   | 'nav';
 
-interface ButtonProps extends React.ComponentProps<'button'> {
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   fullWidth?: boolean;
+  isLoading?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
-export default function Button({ 
-  children, 
-  className, 
-  variant = 'primary', 
-  fullWidth = false,
-  type = 'button',
-  onClick,
-  ...rest 
-}: ButtonProps) {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      className,
+      variant = 'primary',
+      size = 'md',
+      fullWidth = false,
+      isLoading = false,
+      leftIcon,
+      rightIcon,
+      disabled,
+      type = 'button',
+      ...rest
+    },
+    ref
+  ) => {
+    const classNames = [
+      styles.button,
+      styles[variant],
+      styles[size],
+      fullWidth ? styles.fullWidth : '',
+      isLoading ? styles.loading : '',
+      className
+    ].filter(Boolean).join(' ');
 
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={classNames}
+        disabled={disabled || isLoading}
+        {...rest}
+      >
+        {isLoading && <span className={styles.spinner} />}
+        
+        {!isLoading && leftIcon && (
+          <span className={styles.iconLeft}>{leftIcon}</span>
+        )}
+        
+        <span className={styles.content}>{children}</span>
+        
+        {!isLoading && rightIcon && (
+          <span className={styles.iconRight}>{rightIcon}</span>
+        )}
+      </button>
+    );
+  }
+);
 
-  const classNames = [
-    styles.button,
-    styles[variant],
-    fullWidth ? styles.fullWidth : '',
-    className
-  ].filter(Boolean).join(' ');
+Button.displayName = 'Button';
 
-  return (
-    <button
-      type={type}
-      className={classNames}
-      onClick={onClick}
-      {...rest}
-    >
-      {children}
-    </button>
-  );
-}
+export default Button;

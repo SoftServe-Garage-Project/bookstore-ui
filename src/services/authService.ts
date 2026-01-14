@@ -167,6 +167,20 @@ export const authService = {
   }
 
   return true;
+  },
+
+  async authorizedFetch(url: string, options: RequestInit = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${authService.getAccessToken()}`,
+    ...options.headers,
+  };
+  return fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include' as RequestCredentials,
+  });
   }
 
 };
