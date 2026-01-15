@@ -1,0 +1,115 @@
+.bookCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Чтобы карточки были одинаковой высоты */
+}
+
+.bookCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.cardImage {
+  height: 180px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholderImg {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.cardBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.genreBadge, .ageBadge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.genreBadge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.bookTitle {
+  font-size: 1.1rem;
+  margin: 0 0 4px 0;
+  color: #222;
+}
+
+.bookAuthor {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.bookFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.oldPrice {
+  text-decoration: line-through;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.stock {
+  font-size: 0.8rem;
+  color: #777;
+}

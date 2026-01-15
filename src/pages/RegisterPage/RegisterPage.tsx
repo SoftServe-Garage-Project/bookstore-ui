@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import AuthFormWrapper from "../components/AuthFormWrapper";
-import { authService } from "../services/authService";
-import { validateRegistration } from '../utils/validation';
+import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
+import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
+import { authService } from "../../services/authService";
+import { validateRegistration } from '../../utils/validation';
 import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {
