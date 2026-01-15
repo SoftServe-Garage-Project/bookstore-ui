@@ -1,15 +1,11 @@
 import styles from './Button.module.css';
+import React from 'react';
 
-type ButtonProps = {
-  children: React.ReactNode;
-  disabled?: boolean;
-};
-
-export default function Button({ children, disabled }: ButtonProps) {
+export default function Button({ children, className, ...rest }: React.ComponentProps<'button'>) {
   return (
     <button
-      disabled={disabled}
-      className={styles.button}
+      className={`${styles.button} ${className || ''}`} 
+      {...rest}
     >
       {children}
     </button>

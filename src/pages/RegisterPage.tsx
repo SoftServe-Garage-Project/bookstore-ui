@@ -1,4 +1,5 @@
-import { use, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import AuthFormWrapper from "../components/AuthFormWrapper";
@@ -7,6 +8,7 @@ import { validateRegistration } from '../utils/validation';
 import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +39,7 @@ export default function RegisterPage() {
       });
       setSuccess("Реєстрація успішна! Перенаправлення...");
       setTimeout(() => {
-        window.location.href = "/login";
+        navigate("/login");
       }, 1500);
     } catch (err: any) {
       setError(err.message);
