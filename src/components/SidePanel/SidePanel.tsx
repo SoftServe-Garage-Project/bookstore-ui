@@ -16,6 +16,8 @@ interface SidePanelProps {
   onGenreChange: (genre: string | undefined) => void;
   onTitleSearch: (title: string) => void;
   onSortChange: (sort: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const SidePanel = ({ 
@@ -23,21 +25,22 @@ const SidePanel = ({
   selectedSort = "price,asc",
   onGenreChange, 
   onTitleSearch,
-  onSortChange
+  onSortChange,
+  isOpen,
+  onClose
 }: SidePanelProps) => {
   
   const [searchValue, setSearchValue] = useState("");
   const { genres, isLoading, error } = useGenres();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleApplyFilter = () => {
     onTitleSearch(searchValue);
-    setIsOpen(false);
+    onClose();
   };
 
   const handleGenreSelect = (genreName?: string) => {
     onGenreChange(genreName);
-    setIsOpen(false);
+    onClose();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -48,17 +51,10 @@ const SidePanel = ({
 
   return (
     <>
-      <button 
-        className={styles.burgerBtn} 
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle menu"
-      >
-        {isOpen ? "✕" : "☰"}
-      </button>
-
+    
       <div 
         className={`${styles.overlay} ${isOpen ? styles.open : ""}`} 
-        onClick={() => setIsOpen(false)}
+        onClick={() => onClose()}
       />
 
       <aside className={`${styles.sidePanel} ${isOpen ? styles.open : ""}`}>
