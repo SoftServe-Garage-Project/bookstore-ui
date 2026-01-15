@@ -96,5 +96,6 @@ export const fetchGenres = async (): Promise<Genre[]> => {
     throw new Error(`Failed to fetch genres: ${response.status} ${response.statusText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  return data.content || [];
 };
