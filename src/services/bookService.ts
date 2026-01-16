@@ -53,21 +53,6 @@ export interface AgeGroup {
 const API_URL = '/api/book';
 const GENRES_API_URL = '/api/genres';
 
-const authorizedFetch = async (url: string, options: RequestInit = {}) => {
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Authorization': `Bearer ${authService.getAccessToken()}`,
-    ...options.headers,
-  };
-
-  return fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include' as RequestCredentials,
-  });
-};
-
 export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse<Book>> => {
   const query = new URLSearchParams();
 
@@ -77,7 +62,7 @@ export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse
     }
   });
 
-  const response = await authorizedFetch(`${API_URL}?${query.toString()}`, {
+  const response = await authService.authorizedFetch(`${API_URL}?${query.toString()}`, {
     method: 'GET',
   });
 
@@ -89,7 +74,7 @@ export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  const response = await authorizedFetch(GENRES_API_URL, {
+  const response = await authService.authorizedFetch(GENRES_API_URL, {
     method: 'GET',
   });
 

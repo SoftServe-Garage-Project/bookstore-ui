@@ -26,6 +26,9 @@
   font-weight: bold;
   color: #333;
   flex-shrink: 0; 
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease;
 }
 
 .userSection {

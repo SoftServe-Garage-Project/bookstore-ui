@@ -9,8 +9,11 @@ interface HeaderProps {
   onToggleMenu: () => void;
 }
 
-export default function Header({enableSideMenu = false, isMenuOpen, onToggleMenu }: HeaderProps) {
-  
+export default function Header({
+  enableSideMenu = false,
+  isMenuOpen,
+  onToggleMenu,
+}: HeaderProps) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -18,29 +21,47 @@ export default function Header({enableSideMenu = false, isMenuOpen, onToggleMenu
     navigate("/login");
   };
 
+  const handleCart = async () => {
+    navigate("/cart");
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.leftSection}>
-          {enableSideMenu ? 
-          <button 
-            className={styles.burgerBtn} 
-            onClick={onToggleMenu}
-            aria-label="Toggle menu"
+          {enableSideMenu ? (
+            <button
+              className={styles.burgerBtn}
+              onClick={onToggleMenu}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? "✕" : "☰"}
+            </button>
+          ) : null}
+          <div
+            className={`${styles.logo} ${
+              enableSideMenu ? styles.logoWithMargin : styles.logoWithoutMargin
+            }`}
+            onClick={() => navigate("/")}
+            role="button"
+            tabIndex={0}
           >
-            {isMenuOpen ? "✕" : "☰"}
-          </button>
-          : null
-          }
-          <div className={`${styles.logo} ${enableSideMenu ? styles.logoWithMargin : styles.logoWithoutMargin}`}>
             Bookstore
           </div>
         </div>
 
         <div className={styles.userSection}>
-          <span className={styles.userEmail} title={authService.getUserEmail() || 'Guest'}>
-            {authService.getUserEmail() || 'Guest'}
+          <span
+            className={styles.userEmail}
+            title={authService.getUserEmail() || "Guest"}
+          >
+            {authService.getUserEmail() || "Guest"}
           </span>
+
+          <Button onClick={handleCart} variant="secondary">
+            Cart
+          </Button>
+
           <Button onClick={handleLogout} variant="secondary">
             Logout
           </Button>

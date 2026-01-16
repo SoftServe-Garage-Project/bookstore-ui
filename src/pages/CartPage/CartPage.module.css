@@ -1,0 +1,134 @@
+.pageWrapper {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  color: #111827;
+}
+
+.cartGrid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 32px;
+  align-items: start;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.itemMain {
+  flex: 2;
+}
+
+.bookTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #111827;
+}
+
+.pricePerOne {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.controlsRow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.quantityStepper {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.qtyValue {
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 44px;
+  text-align: center;
+}
+
+.itemTotal {
+  flex: 1;
+  text-align: right;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.summaryCard {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 100px;
+}
+
+.summaryCard h3 {
+  margin: 0 0 24px 0;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 16px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.finalPrice {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #4A6CF7;
+}
+
+@media (max-width: 900px) {
+  .cartGrid { grid-template-columns: 1fr; }
+  .summaryCard { position: static; order: -1; }
+}
+
+@media (max-width: 600px) {
+  .cartItem {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  .itemTotal {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 15px;
+    width: 100%;
+    text-align: center;
+  }
+}
