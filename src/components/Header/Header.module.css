@@ -1,97 +1,254 @@
 .header {
   position: sticky;
   top: 0;
-  height: 60px;
+  height: 64px;
   background: white;
   border-bottom: 1px solid #ddd;
   width: 100%;
   display: flex;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 1000;
 }
 
 .container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
   max-width: 1200px;
   padding: 0 20px;
-  height: 100%;
-  position: relative;
+  gap: 16px;
 }
 
-.logo {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  flex-shrink: 0; 
-  cursor: pointer;
-  user-select: none;
-  transition: opacity 0.2s ease;
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.middleSection {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  justify-content: center;
 }
 
 .userSection {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-right: 10px;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 96px;
 }
 
-.userEmail {
-  color: #666;
-  font-size: 0.9rem;
-  
+.logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
+  color: #1a1a1a;
+  transition: color 0.2s;
+}
+
+.logo:hover {
+  color: #0066cc;
 }
 
 .burgerBtn {
   display: none;
-  position: absolute; 
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 90;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 6px 10px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  line-height: 1;
+  border-radius: 50%;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.burgerBtn:hover {
+  background: #f5f5f5;
+}
+
+.burgerIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+  outline: none;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  background: #fff;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.iconBtn:hover {
+  background: #f5f5f5;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.accountWrapper {
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: white;
+  min-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #eee;
+  padding: 8px 0;
+  z-index: 1001;
+}
+
+.dropdownEmail {
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdownItem {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.dropdownItem:hover {
+  background: #f8f9fa;
+}
+
+.logoutText {
+  color: #ff4d4f;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 4px 0;
 }
 
 @media (max-width: 768px) {
   .burgerBtn {
-    display: block;
+    display: flex;
   }
-  .userEmail {
-    max-width: 100px;
+  
+  .container {
+    padding: 0 12px;
+    gap: 12px;
   }
-  .logoWithMargin {
-    margin-left: 50px;
+  
+  .leftSection {
+    min-width: auto;
   }
-
-  .logoWithoutMargin {
-    margin-left: 10px;
+  
+  .logo {
+    font-size: 1.2rem;
+  }
+  
+  .userSection {
+    min-width: auto;
+    gap: 8px;
+  }
+  
+  .input {
+    padding: 8px 12px 8px 36px;
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 480px) {
-  .burgerBtn {
-    display: block;
-  }
   .container {
-    padding: 0 10px;
-  }
-  
-  .userSection {
+    padding: 0 8px;
     gap: 8px;
   }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+  
+  .input {
+    font-size: 0.85rem;
+  }
+  
+  .dropdown {
+    min-width: 180px;
+  }
+}
 
-  .userEmail {
-    display: none;
+@media (max-width: 360px) {
+  .container {
+    padding: 0 6px;
+  }
+  
+  .logo {
+    font-size: 1rem;
+  }
+  
+  .iconBtn {
+
+    width: 36px;
+    height: 36px;
+    padding: 6px;
   }
 }
