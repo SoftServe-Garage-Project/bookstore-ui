@@ -142,7 +142,6 @@ export const authService = {
         });
       } catch (error) {
         console.error("Token refresh failed", error);
-        // Optional: Redirect to login here if the refresh failed
         // window.location.href = '/login'; 
         throw error;
       }
@@ -157,7 +156,7 @@ export const authService = {
 
     try {
       if (accessToken && refreshToken) {
-        await fetch(`${API_BASE}/logout`, {
+        const res = await fetch(`${API_BASE}/logout`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -166,9 +165,12 @@ export const authService = {
           credentials: "include" as RequestCredentials,
           body: JSON.stringify({ accessToken, refreshToken }),
         });
+        if (!res.ok && res.status !== 204) {
+          throw new Error("Logout failed");
+        }
       }
     } catch (error) {
-      console.error("Logout request failed", error);
+      
     } finally {
       this.clearTokens();
     }

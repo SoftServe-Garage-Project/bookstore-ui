@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../../services/authService";
+import { authService } from "../../services/authService/authService";
 import styles from "./Header.module.css";
 
 import searchIcon from "../../assets/icons/search.svg";

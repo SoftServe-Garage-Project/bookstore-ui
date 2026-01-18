@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { authService } from "../../services/authService";
-import { fetchBooks, Book, PageResponse, BookFilterParams } from "../../services/bookService";
+import { authService } from "../../services/authService/authService";
+import { fetchBooks, Book, PageResponse, BookFilterParams } from "../../services/bookService/bookService";
 
 import Header from "../../components/Header/Header";
 import SidePanel from "../../components/SidePanel/SidePanel";
@@ -46,7 +46,6 @@ export default function HomePage() {
       setError(null);
 
       try {
-        console.log("Fetching with URL params:", filters);
         const data: PageResponse<Book> = await fetchBooks(filters);
 
         setBooks(data.content);
