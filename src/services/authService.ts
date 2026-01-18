@@ -21,13 +21,18 @@ const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
+let refreshPromise: Promise<string> | null = null;
+
 
 export const authService = {
   async register(data: RegisterData) {
     const res = await fetch(`${API_BASE}/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      credentials: "include",
       body: JSON.stringify(data),
     });
 
@@ -39,14 +44,17 @@ export const authService = {
       throw new Error("Помилка реєстрації");
     }
 
-    return true; 
+    return true;
   },
 
   async login(data: LoginData) {
     const res = await fetch(`${API_BASE}/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      credentials: 'include' as RequestCredentials,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      credentials: "include" as RequestCredentials,
       body: JSON.stringify(data),
     });
 
@@ -56,41 +64,91 @@ export const authService = {
 
     const tokens: AuthResponse = await res.json();
     this.saveTokens(tokens);
-    
+
     return tokens;
   },
 
   async refreshTokens(): Promise<string> {
+    if (refreshPromise) {
+      return refreshPromise;
+    }
     const refreshToken = this.getRefreshToken();
-    
     if (!refreshToken) {
-      this.clearTokens();
       throw new Error("No refresh token available");
     }
+    refreshPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ refreshToken }),
+        });
 
-    try {
-      const res = await fetch(`${API_BASE}/refresh`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${refreshToken}` 
-        },
-        credentials: 'include' as RequestCredentials,
-      });
+        if (res.status === 401 || res.status === 403) {
+          this.clearTokens();
+          throw new Error("Refresh token expired or invalid");
+        }
 
-      if (!res.ok) {
-        throw new Error("Refresh failed");
+        if (!res.ok) {
+          throw new Error(`Refresh failed: ${res.status}`);
+        }
+
+        const data: AuthResponse = await res.json();
+        this.saveTokens(data);
+        return data.accessToken;
+      } finally {
+        refreshPromise = null;
       }
+    })();
 
-      const data: AuthResponse = await res.json();
-      this.saveTokens(data); 
+    return refreshPromise;
+  },
 
-      return data.accessToken;
-    } catch (error) {
-      this.clearTokens();
-      console.error("Token refresh critical error:", error);
-      throw error;
+  async authorizedFetch(
+    url: string,
+    options: RequestInit = {},
+    retried: boolean = false
+  ) {
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${this.getAccessToken()}`,
+      ...options.headers,
+    };
+
+    let res = await fetch(url, {
+      ...options,
+      headers,
+      credentials: "include" as RequestCredentials,
+    });
+
+    if (res.status === 401 && !retried) {
+      try {
+        const newAccessToken = await this.refreshTokens();
+
+        const newHeaders = {
+          ...headers,
+          Authorization: `Bearer ${newAccessToken}`,
+        };
+
+        return await fetch(url, {
+          ...options,
+          headers: newHeaders,
+          credentials: "include" as RequestCredentials,
+        });
+      } catch (error) {
+        console.error("Token refresh failed", error);
+        // Optional: Redirect to login here if the refresh failed
+        // window.location.href = '/login'; 
+        throw error;
+      }
     }
+
+    return res;
   },
 
   async logout() {
@@ -101,11 +159,11 @@ export const authService = {
       if (accessToken && refreshToken) {
         await fetch(`${API_BASE}/logout`, {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
-          credentials: 'include' as RequestCredentials,
+          credentials: "include" as RequestCredentials,
           body: JSON.stringify({ accessToken, refreshToken }),
         });
       }
@@ -117,7 +175,9 @@ export const authService = {
   },
 
   saveTokens(tokens: AuthResponse) {
-    localStorage.setItem(EMAIL, tokens.email);
+    if (tokens.email) {
+      localStorage.setItem(EMAIL, tokens.email);
+    }
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
   },
@@ -141,47 +201,31 @@ export const authService = {
   },
 
   async forgotPassword(email: string) {
-  const res = await fetch(`${API_BASE}/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
+    const res = await fetch(`${API_BASE}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
 
-  if (!res.ok) {
-    throw new Error("Something went wrong");
-  }
+    if (!res.ok) {
+      throw new Error("Something went wrong");
+    }
 
-  return true;
+    return true;
   },
 
   async resetPassword(token: string, newPassword: string) {
-  const res = await fetch(`${API_BASE}/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, newPassword }),
-  });
+    const res = await fetch(`${API_BASE}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Error resetting password");
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || "Error resetting password");
+    }
+
+    return true;
   }
-
-  return true;
-  },
-
-  async authorizedFetch(url: string, options: RequestInit = {}) {
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Authorization': `Bearer ${authService.getAccessToken()}`,
-    ...options.headers,
-  };
-  return fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include' as RequestCredentials,
-  });
-  }
-
 };
-

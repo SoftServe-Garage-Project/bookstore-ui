@@ -12,7 +12,7 @@ import styles from "./HomePage.module.css";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [books, setBooks] = useState<Book[]>([]);
@@ -25,7 +25,7 @@ export default function HomePage() {
   const filters: BookFilterParams = useMemo(() => {
     return {
       page: Number(searchParams.get("page")) || 0,
-      size: Number(searchParams.get("size")) || 10,
+      size: Number(searchParams.get("size")) || 12,
       sort: searchParams.get("sort") || "price,asc",
       genreName: searchParams.get("genreName") || undefined,
       title: searchParams.get("title") || undefined,
@@ -44,20 +44,16 @@ export default function HomePage() {
 
       setIsLoading(true);
       setError(null);
-      
+
       try {
         console.log("Fetching with URL params:", filters);
         const data: PageResponse<Book> = await fetchBooks(filters);
-        
+
         setBooks(data.content);
         setTotalPages(data.totalPages);
-        
       } catch (err: any) {
         console.error("Error:", err);
         setError(err.message);
-        if (err.message && err.message.includes("401")) {
-             navigate("/login");
-        }
       } finally {
         setIsLoading(false);
       }
@@ -65,8 +61,6 @@ export default function HomePage() {
 
     loadBooks();
   }, [filters, navigate]);
-
-  
 
   const updateQueryParams = (newParams: Partial<BookFilterParams>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -83,35 +77,32 @@ export default function HomePage() {
   };
 
   const handleGenreChange = (genre: string | undefined) => {
-    updateQueryParams({ 
-      genreName: genre, 
-      page: 0
+    updateQueryParams({
+      genreName: genre,
+      page: 0,
     });
   };
 
   const handleTitleSearch = (title: string) => {
-    updateQueryParams({ 
-      title: title, 
-      page: 0 
+    updateQueryParams({
+      title: title,
+      page: 0,
     });
   };
 
   const handlePageChange = (pageNumber: number) => {
-    updateQueryParams({ 
-      page: pageNumber 
+    updateQueryParams({
+      page: pageNumber,
     });
   };
 
   const handleSortChange = (sortValue: string) => {
-    updateQueryParams({ 
+    updateQueryParams({
       sort: sortValue,
-      page: 0
+      page: 0,
     });
   };
 
-
-
-  
   return (
     <div className={styles.layout}>
       <Header
@@ -140,9 +131,11 @@ export default function HomePage() {
           {error && <div className={styles.errorAlert}>{error}</div>}
 
           {!isLoading && books.length === 0 && !error && (
-            <p className={styles.emptyState}>No books found matching your criteria.</p>
+            <p className={styles.emptyState}>
+              No books found matching your criteria.
+            </p>
           )}
-          
+
           <div className={styles.booksGrid}>
             {books.map((book) => {
               return <BookCard key={book.id} book={book} />;
@@ -150,10 +143,10 @@ export default function HomePage() {
           </div>
 
           {totalPages > 1 && (
-            <Pagination 
-              currentPage={filters.page} 
-              totalPages={totalPages} 
-              onPageChange={handlePageChange} 
+            <Pagination
+              currentPage={filters.page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           )}
         </main>

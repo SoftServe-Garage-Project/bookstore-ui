@@ -8,6 +8,7 @@ import cartIcon from "../../assets/icons/cart.svg";
 import userIcon from "../../assets/icons/user.svg";
 import closeIcon from "../../assets/icons/burger-close.svg";
 import burgerIcon from "../../assets/icons/burger.svg";
+import homeIcon from "../../assets/icons/home.svg";
 
 interface HeaderProps {
   enableSideMenu?: boolean;
@@ -68,7 +69,7 @@ export default function Header({
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.leftSection}>
-          {enableSideMenu && (
+          {enableSideMenu ? (
             <button
               className={styles.burgerBtn}
               onClick={onToggleMenu}
@@ -77,6 +78,18 @@ export default function Header({
               <img
                 src={isMenuOpen ? closeIcon : burgerIcon}
                 alt={isMenuOpen ? "Close menu" : "Open menu"}
+                className={styles.burgerIcon}
+              />
+            </button>
+          ) : (
+            <button
+              className={styles.burgerBtn + " " + styles.homeBtn}
+              onClick={() => navigate("/")}
+              aria-label={"Go to homepage"}
+            >
+              <img
+                src={homeIcon}
+                alt={"Go to homepage"}
                 className={styles.burgerIcon}
               />
             </button>
