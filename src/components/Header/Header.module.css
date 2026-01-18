@@ -70,6 +70,10 @@
   flex-shrink: 0;
 }
 
+.homeBtn {
+  display: flex;
+}
+
 .burgerBtn:hover {
   background: #f5f5f5;
 }
