@@ -6,6 +6,8 @@ export type ButtonVariant =
   | 'secondary' 
   | 'outline' 
   | 'danger' 
+  | 'success' 
+  | 'error' 
   | 'ghost' 
   | 'link' 
   | 'nav';
@@ -19,6 +21,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  isSquare?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -34,6 +37,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       disabled,
       type = 'button',
+      isSquare = false,
       ...rest
     },
     ref
@@ -43,6 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       styles[variant],
       styles[size],
       fullWidth ? styles.fullWidth : '',
+      isSquare ? styles.square : '',
       isLoading ? styles.loading : '',
       className
     ].filter(Boolean).join(' ');
