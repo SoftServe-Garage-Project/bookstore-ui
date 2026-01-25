@@ -122,6 +122,15 @@ export default function Header({
         <div className={styles.userSection}>
           <button
             className={styles.iconBtn}
+            onClick={() => navigate("/orders")}
+            title="Purchase Orders"
+            aria-label="Purchase Orders"
+          >
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB10lEQVR4nO2bPy9DURiHn60TkgpWlfAFGAhD+RSoTcRgMiAdbB0k/sSImETMKBu6+bNiEb5JxZWTnCYnN1HR9L33dfs+yZubdOjvPU9v23vuPQcMwzCMlhgAFoB1YCOlctkl30ti9ADHwCcQKak6cAR0Sw++F3hVMOCf6gXISwq4jgXeA/vAVkrlsh9iPV1KDX4qCPkCFtHDku+p0d+ERMheEHCCPk6D/nYkAq6CgFn0MS/9NagFAUX0UQz6c722nZoJwAREJoCmAmaEL32nNQsoJHB5XPc5HS1gUKsA/OsVocveyi+/PSoEpIkJwARgAkhRQA64i01L21nufW99jkoBY8J/gY0a1Sog5z8hyTPgRvMZkDYmABOACeAfTYfXgJEsCSi0MBv8aGN/JoB/Nh3eBIazJiBNTAAmABOACcAEYAIwAQhQMwGYgMgEkKgA9xxwpcnzwMwLePd57tjRAt46VcAQsOqPHSngL5gAhAVUg4A59FEK+ruQCNgNAtyyVG2cBf1tSwRMxp7TuQXKWliO3WwdlwqqxoIe/cLktHaMuLPyKdbTOYLk/aaESGk9S2+YwG9LOfRL1iIl5Xo5ALpIkH6/RL2c4o6Rsu+hL8mBG4ZhkBW+AUMExDLHhRsmAAAAAElFTkSuQmCC" alt="purchase-order" className={styles.icon} />
+          </button>
+
+          <button
+            className={styles.iconBtn}
             onClick={() => navigate("/cart")}
             title="Cart"
             aria-label="Shopping cart"
