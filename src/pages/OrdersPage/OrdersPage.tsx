@@ -5,6 +5,9 @@ import Header from "../../components/Header/Header";
 import styles from "./OrdersPage.module.css";
 import { useNavigate } from "react-router-dom";
 
+import packageIcon from "../../assets/icons/package.svg";
+import Pagination from "../../components/Pagination/Pagination";
+
 interface OrderItem {
   bookId: number;
   bookTitle: string;
@@ -94,7 +97,7 @@ const OrdersPage = () => {
 
         {!ordersData || ordersData.content.length === 0 ? (
           <div className={styles.emptyCard}>
-            <div className={styles.emptyIcon}>📦</div>
+            <img className={styles.emptyIcon} src={packageIcon} alt="No orders" />
             <p>You haven't placed any orders yet.</p>
             <Button onClick={() => navigate("/")}>Explore Books</Button>
           </div>
@@ -153,27 +156,12 @@ const OrdersPage = () => {
               </article>
             ))}
 
-            {ordersData.totalPages > 1 && (
-              <nav className={styles.pagination}>
-                <Button
-                  disabled={ordersData.number === 0}
-                  onClick={() => loadOrders(ordersData.number - 1)}
-                  variant="secondary"
-                >
-                  Previous
-                </Button>
-                <span className={styles.pageIndicator}>
-                  {ordersData.number + 1} / {ordersData.totalPages}
-                </span>
-                <Button
-                  disabled={ordersData.number + 1 >= ordersData.totalPages}
-                  onClick={() => loadOrders(ordersData.number + 1)}
-                  variant="secondary"
-                >
-                  Next
-                </Button>
-              </nav>
-            )}
+            <Pagination
+            currentPage={ordersData.number}
+            totalPages={ordersData.totalPages}
+            onPageChange={(page) => loadOrders(page)}
+            loading={loading}
+          />
           </section>
         )}
       </main>
