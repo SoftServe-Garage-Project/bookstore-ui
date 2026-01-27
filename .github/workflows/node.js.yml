@@ -14,13 +14,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: List files (Debug)
+      run: ls -R src/components/Button
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
         cache: 'npm'
     
-    # Устанавливаем ВСЕ зависимости (devDependencies тоже)
     - name: Install ALL dependencies
       run: npm install
     
