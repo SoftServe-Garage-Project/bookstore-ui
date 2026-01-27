@@ -32,6 +32,8 @@ export default function HomePage() {
     };
   }, [searchParams]);
 
+  // TODO fix it to show even without login
+
   useEffect(() => {
     if (!authService.getAccessToken()) {
       navigate("/login");
