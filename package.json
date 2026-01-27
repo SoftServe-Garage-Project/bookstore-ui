@@ -24,6 +24,7 @@
     "start:https": "set HTTPS=true&&npm start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:ci": "react-scripts test --watchAll=false --coverage --passWithNoTests",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -45,6 +46,9 @@
     ]
   },
   "devDependencies": {
-    "baseline-browser-mapping": "^2.9.15"
+    "react-router-dom": "^6.20.1",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@testing-library/jest-dom": "^6.4.2"
   }
 }
