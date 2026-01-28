@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
-import { authService } from "../../services/authService";
+import { authService } from "../../services/authService/authService";
 import styles from "./ResetPassword.module.css";
 
 export default function ResetPasswordPage() {
