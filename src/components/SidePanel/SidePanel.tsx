@@ -72,6 +72,7 @@ const SidePanel = ({
               <li 
                 className={!selectedGenre ? styles.active : ""} 
                 onClick={() => handleGenreSelect(undefined)}
+                title="All available genres"
               >
                 All Books
               </li>

@@ -234,8 +234,6 @@ describe("Кошик", () => {
 
     alertSpy.mockRestore();
   });
-  
-  
 
   it("повинен виконати зменшення кількості при кліку на кнопку '-'", async () => {
     const customData = {
@@ -266,5 +264,30 @@ describe("Кошик", () => {
       expect(mockedCartService.updateQuantity).toHaveBeenCalledWith(1, 4);
     });
   });
-  
+
+  it("should cover handleRemove catch block (line 66)", async () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    mockedCartService.removeFromCart.mockRejectedValueOnce(
+      new Error("Delete Fail"),
+    );
+
+    render(
+      <MemoryRouter>
+        <CartPage />
+      </MemoryRouter>,
+    );
+
+    await screen.findByText("Clean Code");
+    const removeBtn = screen.getAllByRole("button", { name: /Remove/i })[0];
+
+    await act(async () => {
+      fireEvent.click(removeBtn);
+    });
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith("Could not remove item");
+    });
+
+    alertSpy.mockRestore();
+  });
 });
