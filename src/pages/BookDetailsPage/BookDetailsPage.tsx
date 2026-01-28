@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Book, fetchBookById } from '../../services/bookService';
+import { Book, fetchBookById } from '../../services/bookService/bookService';
 import Button from '../../components/Button/Button';
 import styles from './BookDetails.module.css';
 import Header from '../../components/Header/Header';
-import { cartService } from '../../services/cartService';
+import { cartService } from '../../services/cartService/cartService';
 import AddToCartModal from '../../components/AddToCartModal/AddToCartModal';
 
 const BookDetailsPage = () => {

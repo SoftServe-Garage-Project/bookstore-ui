@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchGenres, Genre } from "../services/bookService";
+import { fetchGenres, Genre } from "../../services/bookService/bookService";
 
 export const useGenres = () => {
   const [genres, setGenres] = useState<Genre[]>([]);

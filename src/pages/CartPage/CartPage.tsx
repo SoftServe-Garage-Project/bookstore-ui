@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { cartService, CartResponse } from "../../services/cartService";
+import { cartService, CartResponse } from "../../services/cartService/cartService";
 import Button from "../../components/Button/Button";
 import Header from "../../components/Header/Header";
 import styles from "./CartPage.module.css";
