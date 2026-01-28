@@ -142,8 +142,6 @@ export const authService = {
         });
       } catch (error) {
         console.error("Token refresh failed", error);
-        // Optional: Redirect to login here if the refresh failed
-        // window.location.href = '/login'; 
         throw error;
       }
     }

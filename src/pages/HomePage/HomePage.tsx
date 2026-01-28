@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { authService } from "../../services/authService";
+import { authService } from "../../services/authService/authService";
 import { fetchBooks, Book, PageResponse, BookFilterParams } from "../../services/bookService/bookService";
 
 import Header from "../../components/Header/Header";

@@ -62,4 +62,22 @@ describe('useGenres hook', () => {
     resolveFetch(mockGenres);
     expect(result.current.genres).toEqual([]);
   });
+  it('не повинен оновлювати стан при помилці, якщо компонент розмонтовано (isMounted check for error)', async () => {
+    let rejectFetch: (reason: any) => void = () => {};
+    const promise = new Promise((_, reject) => {
+      rejectFetch = reject;
+    });
+    
+    (fetchGenres as jest.Mock).mockReturnValueOnce(promise);
+
+    const { result, unmount } = renderHook(() => useGenres());
+
+    unmount();
+    rejectFetch(new Error('Помилка сервера'));
+    
+    await Promise.resolve();
+    
+    expect(result.current.error).toBe(null);
+    expect(result.current.genres).toEqual([]);
+  });
 });
