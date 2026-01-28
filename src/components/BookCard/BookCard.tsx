@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Book } from "../../services/bookService";
+import { Book } from "../../services/bookService/bookService";
 import styles from "./BookCard.module.css";
 
 interface BookCardProps {

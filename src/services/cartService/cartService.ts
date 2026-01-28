@@ -1,4 +1,4 @@
-import { authService } from './authService';
+import { authService } from '../authService/authService';
 
 export interface AddToCartRequest {
   bookId: number;

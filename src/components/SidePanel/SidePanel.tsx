@@ -1,6 +1,6 @@
 import { memo } from "react";
 import Button from "../Button/Button";
-import { useGenres } from "../../hooks/useGenres";
+import { useGenres } from "../../hooks/useGenres/useGenres";
 import styles from "./SidePanel.module.css";
 
 const SORT_OPTIONS = [
