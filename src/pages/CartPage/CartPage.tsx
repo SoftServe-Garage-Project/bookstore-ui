@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { cartService, CartResponse } from "../../services/cartService/cartService";
+import {
+  cartService,
+  CartResponse,
+} from "../../services/cartService/cartService";
 import Button from "../../components/Button/Button";
 import Header from "../../components/Header/Header";
 import styles from "./CartPage.module.css";
@@ -35,7 +38,7 @@ const CartPage = () => {
     } catch (error) {
       console.error("Update failed:", error);
       alert(
-        "Could not update quantity, trying to reload cart and update again."
+        "Could not update quantity, trying to reload cart and update again.",
       );
       loadCart();
     }
@@ -85,8 +88,7 @@ const CartPage = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <Header
-      />
+      <Header />
 
       <main className={styles.container}>
         <h1 className={styles.title}>Your Shopping Cart</h1>
@@ -110,26 +112,25 @@ const CartPage = () => {
 
                   <div className={styles.controlsRow}>
                     <div className={styles.quantityStepper}>
-                      <div className={styles.quantityStepper}>
-                        <Button
-                          variant="secondary"
-                          className={styles.square}
-                          onClick={() => changeQuantity(item.id, -1)}
-                        >
-                          -
-                        </Button>
+                      <Button
+                        variant="secondary"
+                        className={styles.square}
+                        onClick={() => changeQuantity(item.id, -1)}
+                      >
+                        -
+                      </Button>
 
-                        <span className={styles.qtyValue}>{item.quantity}</span>
+                      <span className={styles.qtyValue}>{item.quantity}</span>
 
-                        <Button
-                          variant="secondary"
-                          className={styles.square}
-                          onClick={() => changeQuantity(item.id, 1)}
-                        >
-                          +
-                        </Button>
-                      </div>
-                    </div>
+                      <Button
+                        variant="secondary"
+                        className={styles.square}
+                        onClick={() => changeQuantity(item.id, 1)}
+                      >
+                        +
+                      </Button>
+                    </div >
+                    <div className="Remove">
                     <Button
                       variant="danger"
                       className="danger"
@@ -137,6 +138,7 @@ const CartPage = () => {
                     >
                       Remove
                     </Button>
+                    </div>
                   </div>
 
                   <div className={styles.itemTotal}>
