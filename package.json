@@ -12,10 +12,9 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "http-proxy-middleware": "^2.0.6",
-    "identity-obj-proxy": "^3.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.12.0",
+    "react-router-dom": "^7.9.6",
     "react-scripts": "^5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
@@ -34,12 +33,6 @@
       "react-app/jest"
     ]
   },
-  "jest": {
-    "moduleNameMapper": {
-      "\\.module\\.css$": "identity-obj-proxy",
-      "\\.css$": "identity-obj-proxy"
-    }
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -57,8 +50,6 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "baseline-browser-mapping": "^2.9.15",
-    "identity-obj-proxy": "^3.0.0"
+    "@testing-library/user-event": "^13.5.0"
   }
 }
