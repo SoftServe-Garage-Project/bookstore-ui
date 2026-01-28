@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 const CartPage = () => {
   const [cartData, setCartData] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -87,8 +86,6 @@ const CartPage = () => {
   return (
     <div className={styles.pageWrapper}>
       <Header
-        isMenuOpen={isMenuOpen}
-        onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
       <main className={styles.container}>
