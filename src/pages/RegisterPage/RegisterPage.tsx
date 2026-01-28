@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
-import { authService } from "../../services/authService";
+import { authService } from "../../services/authService/authService";
 import { validateRegistration } from '../../utils/validation';
 import styles from "./RegisterPage.module.css";
 
