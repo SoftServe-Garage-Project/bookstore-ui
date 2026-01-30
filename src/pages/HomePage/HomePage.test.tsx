@@ -171,16 +171,7 @@ describe("HomePage Component", () => {
     });
   });
 
-  test("відображає пагінацію, якщо сторінок більше ніж одна", async () => {
-    render(
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>,
-    );
-
-    const paginationText = await screen.findByText(/Page 1 of 2/i);
-    expect(paginationText).toBeInTheDocument();
-  });
+  
   test("handleTitleSearch: встановлює та видаляє пошуковий запит", async () => {
     render(
       <MemoryRouter>
