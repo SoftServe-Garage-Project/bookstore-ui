@@ -7,6 +7,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage/ResetPasswordPage";
 import BookDetailsPage from "./pages/BookDetailsPage/BookDetailsPage";
 import CartPage from "./pages/CartPage/CartPage";
 import OrdersPage from "./pages/OrdersPage/OrdersPage";
+import TransactionsPage from "./pages/TransactionsPage/TransactionsPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/book/:id" element={<BookDetailsPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/transactions" element={<TransactionsPage />} />
       </Routes>
     </BrowserRouter>
   );
