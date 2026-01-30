@@ -157,6 +157,12 @@ export default function Header({
                 <hr className={styles.divider} />
                 <button
                   className={styles.dropdownItem}
+                  onClick={() => navigate("/transactions")}
+                >
+                  Transactions
+                </button>
+                <button
+                  className={styles.dropdownItem}
                   onClick={() => navigate("/profile")}
                 >
                   My Profile

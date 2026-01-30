@@ -171,6 +171,7 @@
   margin-bottom: 20px;
   width: 64px;
   height: 64px;
+  opacity: 0.3;
 }
 
 .pagination {
