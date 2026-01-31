@@ -151,28 +151,42 @@ export default function Header({
 
             {isDropdownOpen && (
               <div className={styles.dropdown}>
-                <div className={styles.dropdownEmail}>
-                  {authService.getUserEmail()}
-                </div>
-                <hr className={styles.divider} />
-                <button
-                  className={styles.dropdownItem}
-                  onClick={() => navigate("/transactions")}
-                >
-                  Transactions
-                </button>
-                <button
-                  className={styles.dropdownItem}
-                  onClick={() => navigate("/profile")}
-                >
-                  My Profile
-                </button>
-                <button
-                  className={`${styles.dropdownItem} ${styles.logoutText}`}
-                  onClick={handleLogout}
-                >
-                  Sign Out
-                </button>
+                {authService.getUserEmail() ? (
+                  <>
+                  <div className={styles.dropdownEmail}>
+                    {authService.getUserEmail()}
+                  </div>
+                  <hr className={styles.divider} />
+
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => navigate("/transactions")}
+                  >
+                    Transactions
+                  </button>
+
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => navigate("/promocodes")}
+                  >
+                    Promocodes
+                  </button>
+
+                  <button
+                    className={`${styles.dropdownItem} ${styles.logoutText}`}
+                    onClick={handleLogout}
+                  >
+                    Sign Out
+                  </button>
+                  </>
+                ) : (
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => navigate("/login")}
+                  >
+                    Login / Register
+                  </button>
+                )}
               </div>
             )}
           </div>

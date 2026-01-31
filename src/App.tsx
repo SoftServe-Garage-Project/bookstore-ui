@@ -8,6 +8,8 @@ import BookDetailsPage from "./pages/BookDetailsPage/BookDetailsPage";
 import CartPage from "./pages/CartPage/CartPage";
 import OrdersPage from "./pages/OrdersPage/OrdersPage";
 import TransactionsPage from "./pages/TransactionsPage/TransactionsPage";
+import { OAuthCallback } from "./components/OAuthCallback/OAuthCallback";
+import PromoCodePage from "./pages/PromoCodePage/PromoCodePage";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
+        <Route path="/oauth-callback" element={<OAuthCallback />} />
+        <Route path="/promocodes" element={<PromoCodePage />}/>
       </Routes>
     </BrowserRouter>
   );

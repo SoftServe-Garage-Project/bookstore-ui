@@ -35,12 +35,6 @@ export default function HomePage() {
   // TODO fix it to show even without login
 
   useEffect(() => {
-    if (!authService.getAccessToken()) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  useEffect(() => {
     const loadBooks = async () => {
       if (!authService.getAccessToken()) return;
 

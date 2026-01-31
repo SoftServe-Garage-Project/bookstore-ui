@@ -27,20 +27,31 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+  const handleGoogleLogin = () => {
+    window.location.href = `https://localhost:8084/oauth2/authorization/google`;
+  };
 
   return (
     <AuthFormWrapper>
       <h2 className={styles.container}>Вхід</h2>
-      
+
       <form onSubmit={handleLogin}>
         <Input label="Email" value={email} onChange={setEmail} type="email" />
-        <Input label="Пароль" value={password} onChange={setPassword} type="password" />
+        <Input
+          label="Пароль"
+          value={password}
+          onChange={setPassword}
+          type="password"
+        />
 
         {error && <p className={styles.error}>{error}</p>}
 
         <Button type="submit" disabled={loading}>
           {loading ? "Вхід..." : "Увійти"}
         </Button>
+        
+        <button onClick={handleGoogleLogin}>Войти через Google</button>
+        
       </form>
 
       <div className={styles.links}>
