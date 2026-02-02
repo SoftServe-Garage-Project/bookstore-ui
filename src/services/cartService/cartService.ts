@@ -1,4 +1,4 @@
-import { authService } from '../authService/authService';
+import { authService } from './../authService/authService';
 
 export interface AddToCartRequest {
   bookId: number;
@@ -61,7 +61,7 @@ export const cartService = {
     }
   },
 
-  /** 
+  /** FOR FUTURE USE
   updateQuantity: async (bookInCartId: number, newQuantity: number): Promise<void> => {
     const response = await authService.authorizedFetch(`${API_CART_ITEMS_URL}/${bookInCartId}`, {
       method: 'PUT',

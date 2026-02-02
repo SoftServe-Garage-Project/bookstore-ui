@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  cartService,
-  CartResponse,
-} from "../../services/cartService/cartService";
+import { cartService, CartResponse } from "../../services/cartService/cartService";
+import { Order, orderService } from "../../services/orderService/orderService";
 import Button from "../../components/Button/Button";
 import Header from "../../components/Header/Header";
 import styles from "./CartPage.module.css";
 import { useNavigate } from "react-router-dom";
+import { StatusModal } from "../../components/StatusModal/StatusModal";
 
 const CartPage = () => {
   const [cartData, setCartData] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalState, setModalState] = useState<"success" | "error">("success");
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
   const navigate = useNavigate();
-
   const timers = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
   const loadCart = async () => {
@@ -37,26 +39,29 @@ const CartPage = () => {
       await loadCart();
     } catch (error) {
       console.error("Update failed:", error);
-      alert(
-        "Could not update quantity, trying to reload cart and update again.",
-      );
       loadCart();
     }
   };
+
   const handleRemove = async (itemInCartId: number) => {
     try {
       await cartService.removeFromCart(itemInCartId);
-
-      if (cartData) {
-        setCartData({
-          ...cartData,
-          items: cartData.items.filter((item) => item.id !== itemInCartId),
-        });
-      }
-
       loadCart();
     } catch (error) {
       alert("Could not remove item");
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const orderData = await orderService.confirmOrder();
+      setLastOrder(orderData);
+      setModalState(orderData.status === "PAID" ? "success" : "error");
+      if (orderData.status === "PAID") setCartData(null);
+      setIsModalOpen(true);
+    } catch (error) {
+      setModalState("error");
+      setIsModalOpen(true);
     }
   };
 
@@ -66,15 +71,10 @@ const CartPage = () => {
     const updatedItems = cartData.items.map((item) => {
       if (item.id === itemInCartId) {
         const nextQty = Math.max(1, item.quantity + delta);
-
-        if (timers.current[itemInCartId]) {
-          clearTimeout(timers.current[itemInCartId]);
-        }
-
+        if (timers.current[itemInCartId]) clearTimeout(timers.current[itemInCartId]);
         timers.current[itemInCartId] = setTimeout(() => {
           performUpdate(itemInCartId, nextQty);
         }, 800);
-
         return { ...item, quantity: nextQty };
       }
       return item;
@@ -83,85 +83,121 @@ const CartPage = () => {
     setCartData({ ...cartData, items: updatedItems });
   };
 
-  if (loading && !cartData)
-    return <div className={styles.loader}>Loading cart...</div>;
+  if (loading && !cartData) return <div className={styles.loader}>Loading cart...</div>;
 
   return (
     <div className={styles.pageWrapper}>
-      <Header />
+      <Header isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
 
       <main className={styles.container}>
-        <h1 className={styles.title}>Your Shopping Cart</h1>
+        <header className={styles.pageHeader}>
+          <h1 className={styles.title}>Shopping Cart</h1>
+          <p className={styles.countInfo}>
+            {cartData?.items.length || 0} {cartData?.items.length === 1 ? 'item' : 'items'} in your bag
+          </p>
+        </header>
 
         {!cartData || cartData.items.length === 0 ? (
-          <div className={styles.emptyMessage}>
-            <p>Your cart is empty</p>
-            <Button onClick={() => navigate("/")}>Go Shopping</Button>
+          <div className={styles.emptyCard}>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any books yet.</p>
+            <Button onClick={() => navigate("/")}>Browse Collection</Button>
           </div>
         ) : (
           <div className={styles.cartGrid}>
-            <div className={styles.itemsList}>
+            <section className={styles.itemsList}>
               {cartData.items.map((item) => (
-                <div key={item.id} className={styles.cartItem}>
-                  <div className={styles.itemMain}>
+                <div key={item.id} className={styles.cartItemCard}>
+                  <div className={styles.itemInfo}>
                     <h3 className={styles.bookTitle}>{item.bookTitle}</h3>
-                    <p className={styles.pricePerOne}>
-                      ${item.price.toFixed(2)} / unit
-                    </p>
-                  </div>
-
-                  <div className={styles.controlsRow}>
-                    <div className={styles.quantityStepper}>
-                      <Button
-                        variant="secondary"
-                        className={styles.square}
-                        onClick={() => changeQuantity(item.id, -1)}
-                      >
-                        -
-                      </Button>
-
-                      <span className={styles.qtyValue}>{item.quantity}</span>
-
-                      <Button
-                        variant="secondary"
-                        className={styles.square}
-                        onClick={() => changeQuantity(item.id, 1)}
-                      >
-                        +
-                      </Button>
-                    </div >
-                    <div className="Remove">
-                    <Button
-                      variant="danger"
-                      className="danger"
+                    <p className={styles.pricePerOne}>${item.price.toFixed(2)} per unit</p>
+                    <button 
+                      className={styles.removeBtn}
                       onClick={() => handleRemove(item.id)}
                     >
-                      Remove
-                    </Button>
-                    </div>
+                      Remove from cart
+                    </button>
                   </div>
 
-                  <div className={styles.itemTotal}>
-                    ${(item.price * item.quantity).toFixed(2)}
+                  <div className={styles.itemActions}>
+                    <div className={styles.stepperContainer}>
+                      <span className={styles.label}>Quantity</span>
+                      <div className={styles.quantityStepper}>
+                        <button 
+                          className={styles.stepBtn}
+                          onClick={() => changeQuantity(item.id, -1)}
+                        >−</button>
+                        <span className={styles.qtyValue}>{item.quantity}</span>
+                        <button 
+                          className={styles.stepBtn}
+                          onClick={() => changeQuantity(item.id, 1)}
+                        >+</button>
+                      </div>
+                    </div>
+
+                    <div className={styles.priceSection}>
+                      <span className={styles.label}>Total</span>
+                      <span className={styles.itemTotalPrice}>
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
-            </div>
+            </section>
 
-            <aside className={styles.summaryCard}>
-              <h3>Order Summary</h3>
-              <div className={styles.summaryRow}>
-                <span>Total Amount:</span>
-                <span className={styles.finalPrice}>
-                  ${cartData.totalPrice.toFixed(2)}
-                </span>
+            <aside className={styles.summarySticky}>
+              <div className={styles.summaryCard}>
+                <h3 className={styles.summaryTitle}>Order Summary</h3>
+                <div className={styles.summaryDetails}>
+                  <div className={styles.summaryRow}>
+                    <span>Subtotal</span>
+                    <span>${cartData.totalPrice.toFixed(2)}</span>
+                  </div>
+                  <div className={styles.summaryRow}>
+                    <span>Shipping</span>
+                    <span className={styles.free}>Free</span>
+                  </div>
+                  <div className={`${styles.summaryRow} ${styles.totalRow}`}>
+                    <span>Total Amount</span>
+                    <span className={styles.finalPrice}>
+                      ${cartData.totalPrice.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="primary"
+                  fullWidth
+                  size="lg"
+                  onClick={handleCheckout}
+                >
+                  Confirm Checkout
+                </Button>
+                <p className={styles.secureNote}>Secure Checkout</p>
               </div>
-              <Button variant="primary" fullWidth size="lg">
-                Checkout Now
-              </Button>
             </aside>
           </div>
         )}
+
+        <StatusModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            if (modalState === "success") navigate("/orders");
+          }}
+          type={modalState}
+          title={modalState === "success" ? "Order Placed!" : "Error"}
+          buttonText={modalState === "success" ? "Go to Orders" : "Try Again"}
+          message={
+            modalState === "success" && lastOrder ? (
+              <div className={styles.modalContent}>
+                <p>Order <strong>#{lastOrder.id}</strong> has been successfully processed.</p>
+                <p className={styles.modalTotal}>Paid: ${lastOrder.totalAmount.toFixed(2)}</p>
+              </div>
+            ) : "Unable to process order. Please check your balance."
+          }
+        />
       </main>
     </div>
   );

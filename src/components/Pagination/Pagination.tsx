@@ -1,33 +1,61 @@
+import React from "react";
+import Button from "../../components/Button/Button";
 import styles from "./Pagination.module.css";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
-  if (totalPages <= 1) return null;
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  loading = false,
+}) => {
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const handlePrevious = () => {
+    if (currentPage > 0 && !loading) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages - 1 && !loading) {
+      onPageChange(currentPage + 1);
+    }
+  };
 
   return (
-    <div className={styles.pagination}>
-      <button 
-        disabled={currentPage === 0} 
-        onClick={() => onPageChange(currentPage - 1)}
-        className={styles.pageBtn}
+    <nav className={styles.pagination}>
+      <Button
+        disabled={currentPage === 0 || loading}
+        onClick={handlePrevious}
+        variant="primary"
+        className={styles.paginationButton}
       >
-        &lt; Prev
-      </button>
-      <span className={styles.pageInfo}>
-        Page {currentPage + 1} of {totalPages}
+        Previous
+      </Button>
+      
+      <span className={styles.pageIndicator}>
+        {currentPage + 1} / {totalPages}
       </span>
-      <button 
-        disabled={currentPage >= totalPages - 1} 
-        onClick={() => onPageChange(currentPage + 1)}
-        className={styles.pageBtn}
+      
+      <Button
+        disabled={currentPage + 1 >= totalPages || loading}
+        onClick={handleNext}
+        variant="primary"
+        className={styles.paginationButton}
       >
-        Next &gt;
-      </button>
-    </div>
+        Next
+      </Button>
+    </nav>
   );
-}
+};
+
+export default Pagination;

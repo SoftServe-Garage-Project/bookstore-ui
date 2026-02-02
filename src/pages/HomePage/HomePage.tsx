@@ -32,6 +32,8 @@ export default function HomePage() {
     };
   }, [searchParams]);
 
+  // TODO fix it to show even without login
+
   useEffect(() => {
     if (!authService.getAccessToken()) {
       navigate("/login");
@@ -46,7 +48,6 @@ export default function HomePage() {
       setError(null);
 
       try {
-        console.log("Fetching with URL params:", filters);
         const data: PageResponse<Book> = await fetchBooks(filters);
 
         setBooks(data.content);

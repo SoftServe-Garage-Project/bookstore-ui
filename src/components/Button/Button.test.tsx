@@ -9,6 +9,8 @@ jest.mock("./Button.module.css", () => ({
   secondary: "secondary",
   outline: "outline",
   danger: "danger",
+  success: "success",
+  error: "error",
   ghost: "ghost",
   link: "link",
   nav: "nav",
