@@ -62,7 +62,7 @@ export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse
     }
   });
 
-  const response = await authService.authorizedFetch(`${API_URL}?${query.toString()}`, {
+  const response = await authService.publicFetch(`${API_URL}?${query.toString()}`, {
     method: 'GET',
   });
 

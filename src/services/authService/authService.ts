@@ -23,7 +23,6 @@ const REFRESH_TOKEN_KEY = "refreshToken";
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 let refreshPromise: Promise<string> | null = null;
 
-
 export const authService = {
   async register(data: RegisterData) {
     const res = await fetch(`${API_BASE}/register`, {
@@ -169,7 +168,6 @@ export const authService = {
         }
       }
     } catch (error) {
-      
     } finally {
       this.clearTokens();
     }
@@ -228,5 +226,42 @@ export const authService = {
     }
 
     return true;
-  }
+  },
+
+  async publicFetch(url: string, options: RequestInit = {}) {
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...options.headers,
+    };
+
+    const res = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    if (!res.ok) {
+      console.warn(`Public fetch failed: ${res.status} ${res.statusText}`);
+    }
+
+    return res;
+  },
+  async googleLogin(idToken: string) {
+    const res = await fetch(`${API_BASE}/auth/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ token: idToken }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Google login failed on backend");
+    }
+
+    const tokens: AuthResponse = await res.json();
+    this.saveTokens(tokens);
+    return tokens;
+  },
 };
