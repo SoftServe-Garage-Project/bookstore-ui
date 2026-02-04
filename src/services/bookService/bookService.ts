@@ -74,7 +74,7 @@ export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  const response = await authService.authorizedFetch(GENRES_API_URL, {
+  const response = await authService.publicFetch(GENRES_API_URL, {
     method: 'GET',
   });
 

@@ -79,12 +79,12 @@ const mockResponse = {
 describe("HomePage Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (authService.getAccessToken as jest.Mock).mockReturnValue("fake-token");
+    (authService.getUserEmail as jest.Mock).mockReturnValue("fake-token");
     (fetchBooks as jest.Mock).mockResolvedValue(mockResponse);
   });
 
   test("перенаправляє на /login, якщо користувач не авторизований", () => {
-    (authService.getAccessToken as jest.Mock).mockReturnValue(null);
+    (authService.getUserEmail as jest.Mock).mockReturnValue(null);
 
     render(
       <MemoryRouter>
