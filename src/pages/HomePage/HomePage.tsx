@@ -32,11 +32,9 @@ export default function HomePage() {
     };
   }, [searchParams]);
 
-  // TODO fix it to show even without login
-
   useEffect(() => {
     const loadBooks = async () => {
-      if (!authService.getAccessToken()) return;
+      if (!authService.getUserEmail) return;
 
       setIsLoading(true);
       setError(null);
