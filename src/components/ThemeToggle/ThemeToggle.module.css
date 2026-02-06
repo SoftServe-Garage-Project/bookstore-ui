@@ -1,0 +1,48 @@
+.themeToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  width: 40px;
+  height: 40px;
+  color: var(--text-main);
+  position: relative;
+  overflow: visible;
+}
+
+.themeToggle:hover {
+  background: var(--bg-hover);
+}
+
+.sunGroup {
+  position: absolute;
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+  transition: opacity 0.4s ease, transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  stroke: currentColor;
+  transform-origin: center;
+}
+
+.moonPath {
+  position: absolute;
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+  transition: opacity 0.4s ease, transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  stroke: currentColor;
+  transform-origin: center;
+}
+
+:global([data-theme='dark']) .sunGroup {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+:global([data-theme='dark']) .moonPath {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
