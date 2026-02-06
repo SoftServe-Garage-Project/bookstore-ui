@@ -1,28 +1,108 @@
-.container {
+.headerContainer {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .error {
-  color: red;
-  margin-top: 10px;
+  color: #ff4d4f;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
 }
 
-.links {
-  margin-top: 15px;
+.divider {
+  display: flex;
+  align-items: center;
   text-align: center;
+  margin: 20px 0;
+  color: #aaa;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #eee;
+}
+
+.divider span {
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  color: #555;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.googleButton:hover {
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.footerLinks {
+  margin-top: 25px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
 .registerLink {
-  color: #4A6CF7;
+  color: #666;
   text-decoration: none;
+  font-size: 14px;
+}
+
+.registerLink span {
+  color: #4A6CF7;
+  font-weight: 600;
 }
 
 .forgotLink {
   color: #888;
-  font-size: 14px;
+  font-size: 13px;
   text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgotLink:hover {
+  color: #4A6CF7;
 }
