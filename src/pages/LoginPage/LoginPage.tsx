@@ -27,15 +27,19 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
   const handleGoogleLogin = () => {
-    window.location.href = `https://localhost:8084/oauth2/authorization/google`;
+    window.location.href = `/oauth2/authorization/google`;
   };
 
   return (
     <AuthFormWrapper>
-      <h2 className={styles.container}>Вхід</h2>
+      <div className={styles.headerContainer}>
+        <h2 className={styles.title}>Вітаємо знову!</h2>
+        <p className={styles.subtitle}>Увійдіть у свій акаунт</p>
+      </div>
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} className={styles.form}>
         <Input label="Email" value={email} onChange={setEmail} type="email" />
         <Input
           label="Пароль"
@@ -47,16 +51,26 @@ export default function LoginPage() {
         {error && <p className={styles.error}>{error}</p>}
 
         <Button type="submit" disabled={loading}>
-          {loading ? "Вхід..." : "Увійти"}
+          {loading ? "Завантаження..." : "Увійти"}
         </Button>
-        
-        <button onClick={handleGoogleLogin}>Войти через Google</button>
-        
       </form>
 
-      <div className={styles.links}>
+      <div className={styles.divider}>
+        <span>або</span>
+      </div>
+
+      <button className={styles.googleButton} onClick={handleGoogleLogin} type="button">
+        <img 
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+          alt="Google" 
+          className={styles.googleIcon} 
+        />
+        Продовжити з Google
+      </button>
+
+      <div className={styles.footerLinks}>
         <Link to="/register" className={styles.registerLink}>
-          Немає акаунту? Реєстрація
+          Немає акаунту? <span>Зареєструватися</span>
         </Link>
         <Link to="/forgot-password" className={styles.forgotLink}>
           Забули пароль?

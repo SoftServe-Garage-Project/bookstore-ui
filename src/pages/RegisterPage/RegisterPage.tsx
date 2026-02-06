@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import AuthFormWrapper from "../../components/AuthForm/AuthFormWrapper";
@@ -42,17 +42,24 @@ export default function RegisterPage() {
         navigate("/login");
       }, 1500);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Помилка при створенні акаунту");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleGoogleRegister = () => {
+    window.location.href = `/oauth2/authorization/google`;
+  };
+
   return (
     <AuthFormWrapper>
-      <h2 className={styles.title}>Реєстрація</h2>
+      <div className={styles.headerContainer}>
+        <h2 className={styles.title}>Створити акаунт</h2>
+        <p className={styles.subtitle}>Приєднуйтесь до нашої спільноти</p>
+      </div>
       
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleRegister} className={styles.form}>
         <Input label="Ім'я" value={name} onChange={setName} />
         <Input label="Email" value={email} onChange={setEmail} type="email" />
         <Input
@@ -72,12 +79,27 @@ export default function RegisterPage() {
         {success && <p className={styles.success}>{success}</p>}
 
         <Button type="submit" disabled={loading}>
-          {loading ? "Завантаження..." : "Зареєструватися"}
+          {loading ? "Створення..." : "Зареєструватися"}
         </Button>
       </form>
 
-      <div className={styles.linkContainer}>
-        <a href="/login" className={styles.link}>Вже є акаунт? Увійти</a>
+      <div className={styles.divider}>
+        <span>або за допомогою</span>
+      </div>
+
+      <button className={styles.googleButton} onClick={handleGoogleRegister} type="button">
+        <img 
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+          alt="Google" 
+          className={styles.googleIcon} 
+        />
+        Реєстрація через Google
+      </button>
+
+      <div className={styles.footerLinks}>
+        <Link to="/login" className={styles.loginLink}>
+          Вже є акаунт? <span>Увійти</span>
+        </Link>
       </div>
     </AuthFormWrapper>
   );
