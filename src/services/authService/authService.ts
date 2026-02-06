@@ -97,20 +97,21 @@ export const authService = {
   },
 
   async refreshTokens(): Promise<boolean> {
-    const res = await fetch(`${API_BASE}/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    });
+  const res = await fetch(`${API_BASE}/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({}), 
+  });
 
-    if (!res.ok) {
-      throw new Error("Refresh failed");
-    }
+  if (!res.ok) {
+    throw new Error("Refresh failed");
+  }
 
-    const userData = await res.json();
-    this.saveUserInfo(userData);
-    return true;
-  },
+  const userData = await res.json();
+  this.saveUserInfo(userData);
+  return true;
+},
 
   async logout() {
     try {
