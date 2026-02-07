@@ -1,6 +1,28 @@
+.pageWrapper,
+.orderCard,
+.summaryCard,
+.emptyCard,
+.orderHeader,
+.orderFooter,
+.amountInput,
+.statusBadge,
+.itemQty,
+.title,
+.subtitle,
+.bookTitle,
+.totalAmount,
+.finalPrice,
+.sideLabel {
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease, 
+    box-shadow 0.3s ease;
+}
+
 .pageWrapper {
   min-height: 100vh;
-  background-color: #f3f4f6;
+  background-color: var(--bg-header);
   padding-bottom: 80px;
 }
 
@@ -17,20 +39,21 @@
 .title {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
   margin-bottom: 4px;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .transactionsGrid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr minmax(300px, 380px); 
   gap: 32px;
   align-items: start;
+  width: 100%;
 }
 
 .mainList {
@@ -40,16 +63,17 @@
 }
 
 .orderCard {
-  background: #ffffff;
+  background: var(--bg-container);
   border-radius: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(229, 231, 235, 0.5);
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   overflow: hidden;
+  transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
 .orderCard:hover {
   transform: translateX(4px);
+  background-color: var(--bg-hover);
 }
 
 .orderHeader {
@@ -57,7 +81,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .statusBadge {
@@ -67,10 +91,18 @@
   font-weight: 700;
   text-transform: uppercase;
 }
-.statusPaid { background: #ecfdf5; color: #059669; }
-.statusPending { background: #fffbeb; color: #d97706; }
+
+.statusPaid { 
+  background: rgba(16, 185, 129, 0.15); 
+  color: #10b981; 
+}
+.statusPending { 
+  background: var(--bg-input); 
+  color: var(--accent); 
+}
 
 .orderBody { padding: 0 24px; }
+
 .itemRow {
   display: flex;
   justify-content: space-between;
@@ -78,12 +110,24 @@
   padding: 16px 0;
 }
 
-.bookTitle { font-size: 1.1rem; font-weight: 700; color: #111827; }
-.itemQty { font-size: 0.875rem; color: #9ca3af; background: #f3f4f6; padding: 4px 10px; border-radius: 8px; margin-left: 12px; }
+.bookTitle { 
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  color: var(--text-main); 
+}
+
+.itemQty { 
+  font-size: 0.875rem; 
+  color: var(--text-muted); 
+  background: var(--bg-input); 
+  padding: 4px 10px; 
+  border-radius: 8px; 
+  margin-left: 12px; 
+}
 
 .orderFooter {
   padding: 24px;
-  background-color: #f9fafb;
+  background-color: var(--bg-input);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -92,9 +136,12 @@
 .totalAmount {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
 }
-.positiveAmount { color: #10b981; }
+
+.positiveAmount { 
+  color: #10b981; 
+}
 
 .summarySticky {
   position: sticky;
@@ -102,10 +149,11 @@
 }
 
 .summaryCard {
-  background: white;
+  background: var(--bg-container);
   border-radius: 24px;
   padding: 32px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -113,7 +161,7 @@
 
 .balanceInfo {
   padding-bottom: 20px;
-  border-bottom: 2px dashed #f3f4f6;
+  border-bottom: 2px dashed var(--border-color);
 }
 
 .sideLabel {
@@ -121,14 +169,14 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
 .finalPrice {
   font-size: 2rem;
   font-weight: 900;
-  color: #4A6CF7;
+  color: var(--accent);
 }
 
 .topUpForm {
@@ -141,50 +189,62 @@
   width: 100%;
   box-sizing: border-box;
   padding: 14px 16px;
-  border: 2px solid #f3f4f6;
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 1rem;
   outline: none;
 }
-.amountInput:focus { border-color: #4A6CF7; }
+
+.amountInput:focus { 
+  border-color: var(--accent); 
+}
 
 .emptyCard {
-  background: white;
+  background: var(--bg-container);
   border-radius: 24px;
   padding: 60px;
   text-align: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .emptyIcon {
   width: 80px;
   height: 80px;
   margin-bottom: 24px;
-  opacity: 0.3;
+  opacity: 0.5;
+  filter: grayscale(1);
 }
 
 @media (max-width: 1024px) {
   .transactionsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; 
   }
+
   .summarySticky {
     position: static;
     order: -1;
-    margin-bottom: 32px;
+    width: 100%;
   }
 }
 
 @media (max-width: 640px) {
-  .orderHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .container {
+    padding: 20px 12px;
   }
-  
-  .orderFooter {
+
+  .orderHeader, .orderFooter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .itemRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 8px;
   }
 
   .totalSection {
@@ -192,7 +252,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid #e5e7eb;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .bookTitle {
+    font-size: 1rem;
   }
 }
