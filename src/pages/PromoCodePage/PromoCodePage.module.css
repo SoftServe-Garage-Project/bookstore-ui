@@ -1,26 +1,77 @@
-.pageWrapper { min-height: 100vh; background-color: #f3f4f6; padding-bottom: 80px; }
-.container { max-width: 1140px; margin: 0 auto; padding: 40px 20px; }
-.pageHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-.title { font-size: 2.25rem; font-weight: 800; color: #111827; }
+.pageWrapper,
+.promoCard,
+.badge,
+.promoCodeText,
+.description,
+.usageValue,
+.label,
+.editBtn,
+.formGroup input,
+.title {
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease, 
+    box-shadow 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.2s ease;
+}
 
-.promoGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 24px; }
+.pageWrapper {
+  min-height: 100vh;
+  background-color: var(--bg-header);
+  padding-bottom: 80px;
+}
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.promoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  gap: 24px;
+}
 
 .promoCard {
-  background: white;
+  background: var(--bg-container);
   border-radius: 24px;
   padding: 24px;
   display: flex;
   justify-content: space-between;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
   border: 2px solid transparent;
 }
 
-.inactive { opacity: 0.6; border-color: #d1d5db; }
+.promoCard:hover {
+  transform: translateY(-4px);
+  background-color: var(--bg-hover);
+}
+
+.inactive {
+  opacity: 0.6;
+  border-color: var(--border-color);
+  background-color: var(--bg-input);
+}
 
 .badge {
-  background: #4A6CF7;
-  color: white;
+  background: var(--accent);
+  color: #fff;
   padding: 4px 12px;
   border-radius: 99px;
   font-size: 0.75rem;
@@ -29,23 +80,130 @@
   margin-bottom: 12px;
 }
 
-.promoCodeText { font-size: 1.5rem; font-weight: 900; letter-spacing: 1px; color: #111827; margin: 0; }
-.description { color: #6b7280; font-size: 0.9rem; margin: 8px 0; }
-
-.promoActions { text-align: right; display: flex; flex-direction: column; justify-content: space-between; }
-.usageInfo { margin-bottom: 16px; }
-.label { display: block; font-size: 0.75rem; color: #9ca3af; font-weight: 700; text-transform: uppercase; }
-.usageValue { font-size: 1.1rem; font-weight: 800; color: #111827; }
-
-.btnGroup { display: flex; gap: 12px; }
-.editBtn { background: #f3f4f6; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-.activateBtn { color: #10b981; background: none; border: none; cursor: pointer; font-weight: 600; }
-.deactivateBtn { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 600; }
-
-.modalForm { display: flex; flex-direction: column; gap: 16px; text-align: left; margin-top: 20px; }
-.formGroup label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; }
-.formGroup input { 
-  width: 100%; padding: 12px; border: 2px solid #f3f4f6; border-radius: 12px; 
-  font-family: inherit; transition: border-color 0.2s;
+.promoCodeText {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-main);
+  margin: 0;
 }
-.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.promoActions {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.usageValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.btnGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.editBtn {
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.editBtn:hover {
+  background-color: var(--sidepanel-item-active);
+}
+
+.activateBtn {
+  color: #10b981;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.deactivateBtn {
+  color: var(--danger);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-main);
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-family: inherit;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .promoCard {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .promoActions {
+    text-align: left;
+    gap: 16px;
+  }
+
+  .btnGroup {
+    justify-content: flex-start;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
