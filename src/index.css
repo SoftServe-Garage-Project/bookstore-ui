@@ -26,6 +26,8 @@ html, body {
   --sidepanel-item-active: #eaddcf;
   --radius-capsule: 12px;
   --radius-pill: 50px;
+
+  --bg-color-alert: #b94a481a;
 }
 
 [data-theme="dark"] {
@@ -44,6 +46,8 @@ html, body {
 
   --sidepanel-bg: #231f1d;
   --sidepanel-item-active: #3d352f;
+
+  --bg-color-alert: #ebe6e2;
 }
 
 body {
@@ -52,7 +56,6 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   font-family: sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
   
   min-height: 100vh;
   min-height: 100dvh;
