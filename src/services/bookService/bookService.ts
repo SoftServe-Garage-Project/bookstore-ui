@@ -170,3 +170,36 @@ export const deleteBook = async (id: number): Promise<void> => {
     throw new Error("Ошибка при удалении книги");
   }
 };
+
+export const createGenre = async (data: Genre) => {
+  return authService.authorizedFetch('/api/genres', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteGenre = async (name: string) => {
+  return authService.authorizedFetch(`/api/genres/${name}`, { method: 'DELETE' });
+};
+
+export const createLanguage = async (data: { code: string; name: string }) => {
+  return authService.authorizedFetch('/api/languages', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteLanguage = async (code: string) => {
+  return authService.authorizedFetch(`/api/languages/${code}`, { method: 'DELETE' });
+};
+
+export const createAgeGroup = async (data: AgeGroup) => {
+  return authService.authorizedFetch('/api/ageGroups', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteAgeGroup = async (name: string) => {
+  return authService.authorizedFetch(`/api/ageGroups/${name}`, { method: 'DELETE' });
+};

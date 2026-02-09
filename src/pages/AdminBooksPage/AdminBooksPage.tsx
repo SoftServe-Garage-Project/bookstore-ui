@@ -17,6 +17,7 @@ import BookEditorModal from "../../components/BookEditorModal/BookEditorModal";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 
 import styles from "./AdminBookPage.module.css";
+import CatalogModal from "../../components/CatalogModal/CatalogModal";
 
 export default function AdminBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,6 +30,14 @@ export default function AdminBooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const [catalogType, setCatalogType] = useState<"genres" | "languages" | "ageGroups">("genres");
+
+  const openCatalog = (type: "genres" | "languages" | "ageGroups") => {
+    setCatalogType(type);
+    setIsCatalogOpen(true);
+  };
   
   const [statusModal, setStatusModal] = useState<{
     isOpen: boolean;
@@ -146,6 +155,12 @@ export default function AdminBooksPage() {
 
       <Header isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} enableSideMenu={true} />
 
+      <CatalogModal 
+        isOpen={isCatalogOpen} 
+        onClose={() => setIsCatalogOpen(false)} 
+        initialType={catalogType} 
+      />
+
       <div className={styles.mainContainer}>
         <SidePanel 
           selectedGenre={filters.genreName} selectedSort={filters.sort}
@@ -158,8 +173,14 @@ export default function AdminBooksPage() {
         <main className={styles.content}>
           <div className={styles.contentHeader} style={{ display: 'flex', justifyContent: 'space-between' }}>
             <h2>Manage Books</h2>
-            <div style={{ width: '200px' }}>
-                <Button onClick={handleCreateClick}>+ Add New Book</Button>
+            <div className={styles.adminActions} >
+                <h2>Management</h2>
+                <div className={styles.adminActions}>
+                  <Button onClick={() => openCatalog("genres")} className={styles.subBtn}>Genres</Button>
+                  <Button onClick={() => openCatalog("languages")} className={styles.subBtn}>Langs</Button>
+                  <Button onClick={() => openCatalog("ageGroups")} className={styles.subBtn}>Ages</Button>
+                  <Button onClick={handleCreateClick}>+ Add Book</Button>
+                </div>
             </div>
           </div>
 
@@ -180,7 +201,7 @@ export default function AdminBooksPage() {
               </div>
             ))}
           </div>
-
+          
           {totalPages > 1 && (
             <Pagination 
               currentPage={filters.page} totalPages={totalPages}

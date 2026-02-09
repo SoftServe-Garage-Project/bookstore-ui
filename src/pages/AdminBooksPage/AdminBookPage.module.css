@@ -43,6 +43,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .booksGrid {
@@ -55,12 +57,19 @@
 .loader {
   font-size: 0.9rem;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .emptyState {
   text-align: center;
   color: var(--text-muted);
   margin-top: 50px;
+  padding: 40px;
+  background-color: var(--bg-input);
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
 }
 
 .errorAlert {
@@ -77,7 +86,7 @@
 }
 
 .content::-webkit-scrollbar-track {
-  background: var(--bg-header);
+  background: var(--bg-input);
 }
 
 .content::-webkit-scrollbar-thumb {
@@ -87,4 +96,51 @@
 
 .content::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+.adminActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.subBtn {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.subBtn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--text-main);
+}
+
+
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.subBtn:active {
+  transform: translateY(1px);
+}
+
+.errorAlert strong {
+  color: var(--danger);
+}
+
+.emptyState svg {
+  color: var(--border-color);
+  margin-bottom: 15px;
+}
+
+.adminActions {
+  width: '300px'
 }
