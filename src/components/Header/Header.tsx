@@ -219,14 +219,20 @@ export default function Header({
                       </>
                     )}
 
-                    {/* Общие пункты меню */}
                     <button
                       className={styles.dropdownItem}
                       onClick={() => navigateAndCloseDropdown("/promocodes")}
                     >
-                      Promocodes
+                      Edit Promocodes
                     </button>
-
+                    
+                    <button
+                      className={styles.dropdownItem}
+                      onClick={() => navigateAndCloseDropdown("/editbook")}
+                    >
+                      Edit Books
+                    </button>
+                    
                     <button
                       className={`${styles.dropdownItem} ${styles.logoutText}`}
                       onClick={handleLogout}
