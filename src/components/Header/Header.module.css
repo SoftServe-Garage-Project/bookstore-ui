@@ -217,20 +217,46 @@
 }
 
 @media (max-width: 768px) {
-  .burgerBtn { 
+
+    .burgerBtn { 
     display: flex; 
   }
+
+  .header { 
+    height: 56px; 
+  }
+  
   .container { 
-    padding: 0 12px; 
-    gap: 8px; 
+    padding: 0 8px; 
+    gap: 6px; 
   }
-  .logo {
-    min-width: 100px;
+  
+  .iconBtn {
+    width: 36px;
+    height: 36px;
   }
-  .input { 
-    padding-left: 36px; 
+  
+  .mobileHidden {
+    display: none !important;
   }
-  .searchIcon { 
-    left: 12px; 
+  
+  .mobileMenuIcon {
+    display: block !important;
+  }
+  
+  .dropdownIcon {
+    margin-right: 10px;
+    color: var(--text-secondary);
+  }
+  
+  .dropdownIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileMenuIcon {
+    display: none !important;
   }
 }
