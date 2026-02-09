@@ -1,4 +1,4 @@
-import { authService } from '../authService/authService';
+import { authService } from "../authService/authService";
 
 export interface Author {
   firstName: string;
@@ -34,7 +34,7 @@ export interface BookFilterParams {
   size: number;
   sort?: string;
   genreName?: string;
-  ageGroupName?: string; 
+  ageGroupName?: string;
   title?: string;
 }
 
@@ -50,24 +50,31 @@ export interface AgeGroup {
   maxAge: number;
 }
 
-const API_URL = '/api/book';
-const GENRES_API_URL = '/api/genres';
+const API_URL = "/api/book";
+const GENRES_API_URL = "/api/genres";
 
-export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse<Book>> => {
+export const fetchBooks = async (
+  params: BookFilterParams
+): Promise<PageResponse<Book>> => {
   const query = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
+    if (value !== undefined && value !== null && value !== "") {
       query.append(key, String(value));
     }
   });
 
-  const response = await authService.publicFetch(`${API_URL}?${query.toString()}`, {
-    method: 'GET',
-  });
+  const response = await authService.publicFetch(
+    `${API_URL}?${query.toString()}`,
+    {
+      method: "GET",
+    }
+  );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch books: ${response.status} ${response.statusText}`
+    );
   }
 
   return response.json();
@@ -75,13 +82,31 @@ export const fetchBooks = async (params: BookFilterParams): Promise<PageResponse
 
 export const fetchGenres = async (): Promise<Genre[]> => {
   const response = await authService.publicFetch(GENRES_API_URL, {
-    method: 'GET',
+    method: "GET",
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch genres: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch genres: ${response.status} ${response.statusText}`
+    );
   }
 
+  const data = await response.json();
+  return data.content || [];
+};
+
+export const fetchLanguages = async (): Promise<
+  { code: string; name: string }[]
+> => {
+  const response = await authService.publicFetch("/api/languages");
+  if (!response.ok) throw new Error("Failed to fetch languages");
+  const data = await response.json();
+  return data.content || [];
+};
+
+export const fetchAgeGroups = async (): Promise<AgeGroup[]> => {
+  const response = await authService.publicFetch("/api/ageGroups");
+  if (!response.ok) throw new Error("Failed to fetch age groups");
   const data = await response.json();
   return data.content || [];
 };
@@ -95,5 +120,53 @@ export const fetchBookById = async (id: number): Promise<Book | null> => {
   } catch (error) {
     console.error("Error fetching book by id:", error);
     return null;
+  }
+};
+
+/**
+export const fetchBookById = async (id: number): Promise<Book> => {
+  const response = await authService.publicFetch(`${API_URL}/${id}`);
+  
+  if (!response.ok) {
+    throw new Error(`Книга с ID ${id} не найдена`);
+  }
+  return response.json();
+};
+*/
+
+export const createBook = async (bookData: Omit<Book, "id">): Promise<Book> => {
+  const response = await authService.authorizedFetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(bookData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Ошибка при создании книги");
+  }
+  return response.json();
+};
+
+export const updateBook = async (
+  id: number,
+  bookData: Partial<Book>
+): Promise<Book> => {
+  const response = await authService.authorizedFetch(`${API_URL}/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(bookData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Ошибка при обновлении книги");
+  }
+  return response.json();
+};
+
+export const deleteBook = async (id: number): Promise<void> => {
+  const response = await authService.authorizedFetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Ошибка при удалении книги");
   }
 };
