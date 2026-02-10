@@ -34,7 +34,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const loadBooks = async () => {
-      if (!authService.getUserEmail) return;
+      if (!authService.getUserEmail()) return;
 
       setIsLoading(true);
       setError(null);
