@@ -32,6 +32,7 @@ interface PaginatedOrders {
   totalElements: number;
   number: number;
 }
+
 const OrdersPage = () => {
   const [ordersData, setOrdersData] = useState<PaginatedOrders | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,10 +77,6 @@ const OrdersPage = () => {
     }
   };
 
-  if (loading && !ordersData) {
-    return <div className={styles.loader}>Loading orders...</div>;
-  }
-
   return (
     <div className={styles.pageWrapper}>
       <Header
@@ -95,9 +92,15 @@ const OrdersPage = () => {
           </p>
         </header>
 
-        {!ordersData || ordersData.content.length === 0 ? (
+        {loading ? (
+          <div className={styles.loader}>Loading orders...</div>
+        ) : !ordersData || ordersData.content.length === 0 ? (
           <div className={styles.emptyCard}>
-            <img className={styles.emptyIcon} src={packageIcon} alt="No orders" />
+            <img
+              className={styles.emptyIcon}
+              src={packageIcon}
+              alt="No orders"
+            />
             <p>You haven't placed any orders yet.</p>
             <Button onClick={() => navigate("/")}>Explore Books</Button>
           </div>
@@ -157,11 +160,11 @@ const OrdersPage = () => {
             ))}
 
             <Pagination
-            currentPage={ordersData.number}
-            totalPages={ordersData.totalPages}
-            onPageChange={(page) => loadOrders(page)}
-            loading={loading}
-          />
+              currentPage={ordersData.number}
+              totalPages={ordersData.totalPages}
+              onPageChange={(page) => loadOrders(page)}
+              loading={loading}
+            />
           </section>
         )}
       </main>

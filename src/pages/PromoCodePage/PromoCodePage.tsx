@@ -63,63 +63,75 @@ const PromoCodePage = () => {
     }
   };
 
-  if (loading) return <div className={styles.loader}>Loading promos...</div>;
-
   return (
     <div className={styles.pageWrapper}>
       <Header isMenuOpen={false} onToggleMenu={() => {}} />
       <main className={styles.container}>
         <header className={styles.pageHeader}>
           <h1 className={styles.title}>Promo Codes</h1>
-          <Button onClick={() => openEdit()}>+ Create New Promo</Button>
+          {!loading && (
+            <Button onClick={() => openEdit()}>+ Create New Promo</Button>
+          )}
         </header>
 
-        <div className={styles.promoGrid}>
-          {promos.map((promo) => (
-            <div
-              key={promo.id}
-              className={`${styles.promoCard} ${!promo.isActive ? styles.inactive : ""}`}
-            >
-              <div className={styles.promoInfo}>
-                <div className={styles.badge}>
-                  {promo.discountPercentage}% OFF
+        {loading ? (
+          <div className={styles.loader}>Loading promos...</div>
+        ) : promos.length === 0 ? (
+          <div className={styles.emptyState}>
+            <h2>No promo codes yet</h2>
+            <p>Create your first promotional code to get started.</p>
+            <Button onClick={() => openEdit()}>Create First Promo</Button>
+          </div>
+        ) : (
+          <div className={styles.promoGrid}>
+            {promos.map((promo) => (
+              <div
+                key={promo.id}
+                className={`${styles.promoCard} ${!promo.isActive ? styles.inactive : ""}`}
+              >
+                <div className={styles.promoInfo}>
+                  <div className={styles.badge}>
+                    {promo.discountPercentage}% OFF
+                  </div>
+                  <h3 className={styles.promoCodeText}>{promo.code}</h3>
+                  <p className={styles.description}>
+                    {promo.description || "No description"}
+                  </p>
+                  <p className={styles.expiry}>
+                    Valid from: {new Date(promo.validFrom).toLocaleDateString()}
+                  </p>
                 </div>
-                <h3 className={styles.promoCodeText}>{promo.code}</h3>
-                <p className={styles.description}>
-                  {promo.description || "No description"}
-                </p>
-                <p className={styles.expiry}>
-                  Valid from: {new Date(promo.validFrom).toLocaleDateString()}
-                </p>
-              </div>
 
-              <div className={styles.promoActions}>
-                <div className={styles.usageInfo}>
-                  <span className={styles.label}>Usage</span>
-                  <span className={styles.usageValue}>
-                    {promo.currentUses} / {promo.maxUses || "∞"}
-                  </span>
-                </div>
-                <div className={styles.btnGroup}>
-                  <button
-                    className={styles.editBtn}
-                    onClick={() => openEdit(promo)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className={
-                      promo.isActive ? styles.deactivateBtn : styles.activateBtn
-                    }
-                    onClick={() => handleToggle(promo.id, promo.isActive)}
-                  >
-                    {promo.isActive ? "Deactivate" : "Activate"}
-                  </button>
+                <div className={styles.promoActions}>
+                  <div className={styles.usageInfo}>
+                    <span className={styles.label}>Usage</span>
+                    <span className={styles.usageValue}>
+                      {promo.currentUses} / {promo.maxUses || "∞"}
+                    </span>
+                  </div>
+                  <div className={styles.btnGroup}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => openEdit(promo)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className={
+                        promo.isActive
+                          ? styles.deactivateBtn
+                          : styles.activateBtn
+                      }
+                      onClick={() => handleToggle(promo.id, promo.isActive)}
+                    >
+                      {promo.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <StatusModal
           isOpen={isModalOpen}

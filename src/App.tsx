@@ -11,39 +11,47 @@ import TransactionsPage from "./pages/TransactionsPage/TransactionsPage";
 import PromoCodePage from "./pages/PromoCodePage/PromoCodePage";
 import { authService } from "./services/authService/authService";
 import { useEffect } from "react";
+import { ThemeProvider } from "./ThemeContext";
 
 function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('auth_callback') === 'true') {
-      authService.authorizedFetch('/api/me')
-        .then(res => res.ok ? res.json() : null)
-        .then(userData => {
+    if (params.get("auth_callback") === "true") {
+      authService
+        .authorizedFetch("/api/me")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((userData) => {
           if (userData) {
             authService.saveUserInfo(userData);
-            window.history.replaceState({}, document.title, window.location.pathname);
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname
+            );
             console.log("Авторизація через Google успішна!");
           }
         })
-        .catch(err => console.error("Помилка підтягування даних:", err));
+        .catch((err) => console.error("Помилка підтягування даних:", err));
     }
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/" element={<HomePage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/book/:id" element={<BookDetailsPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/transactions" element={<TransactionsPage />} />
-        <Route path="/promocodes" element={<PromoCodePage />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/book/:id" element={<BookDetailsPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/promocodes" element={<PromoCodePage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -1,23 +1,36 @@
+.bookCard,
+.bookCard *,
+.bookCard *::before,
+.bookCard *::after,
+.cardLink {
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease, 
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
 .bookCard {
-  background: white;
+  background: var(--bg-container);
   border-radius: 12px;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  height: 100%; /* Чтобы карточки были одинаковой высоты */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  box-shadow: var(--shadow);
 }
 
 .bookCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  background-color: var(--bg-hover);
+  box-shadow: var(--shadow);
 }
 
 .cardImage {
   height: 180px;
-  background-color: #eee;
+  background-color: var(--bg-input);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +44,7 @@
 }
 
 .placeholderImg {
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -52,30 +65,31 @@
   font-size: 0.75rem;
   padding: 2px 8px;
   border-radius: 12px;
-  background-color: #f0f0f0;
-  color: #666;
+  background-color: var(--bg-input);
+  color: var(--text-muted);
 }
 
 .genreBadge {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: var(--sidepanel-item-active);
+  color: var(--accent);
 }
 
 .bookTitle {
   font-size: 1.1rem;
+  font-weight: 700;
   margin: 0 0 4px 0;
-  color: #222;
+  color: var(--text-main);
 }
 
 .bookAuthor {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
   margin: 0 0 10px 0;
 }
 
 .description {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 15px;
   line-height: 1.4;
   display: -webkit-box;
@@ -89,7 +103,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-color);
   padding-top: 12px;
 }
 
@@ -101,27 +115,26 @@
 .oldPrice {
   text-decoration: line-through;
   font-size: 0.8rem;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .price {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #2e7d32;
+  color: var(--accent);
 }
 
 .stock {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--text-muted);
 }
 
 .cardLink {
   text-decoration: none;
   color: inherit;
   display: block;
-  transition: transform 0.2s ease;
 }
 
 .cardLink:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
 }

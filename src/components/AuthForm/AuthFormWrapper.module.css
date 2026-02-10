@@ -1,8 +1,32 @@
+.pageContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background-color: var(--bg-header);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 .wrapper {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 30px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  background-color: var(--bg-container);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 30px 20px;
+    border-radius: 20px;
+  }
+  
+  .pageContainer {
+    padding: 10px;
+  }
 }

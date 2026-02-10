@@ -1,6 +1,29 @@
+.pageWrapper,
+.cartItemCard,
+.summaryCard,
+.emptyCard,
+.stepBtn,
+.quantityStepper,
+.title,
+.bookTitle,
+.itemTotalPrice,
+.finalPrice,
+.countInfo,
+.pricePerOne,
+.label,
+.summaryRow,
+.qtyValue {
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease, 
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
 .pageWrapper {
   min-height: 100vh;
-  background-color: #f3f4f6; /* Тот же фон для консистентности */
+  background-color: var(--bg-header);
   padding-bottom: 80px;
 }
 
@@ -17,12 +40,12 @@
 .title {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
   margin-bottom: 4px;
 }
 
 .countInfo {
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -33,7 +56,6 @@
   align-items: start;
 }
 
-/* Карточки товаров */
 .itemsList {
   display: flex;
   flex-direction: column;
@@ -41,18 +63,20 @@
 }
 
 .cartItemCard {
-  background: white;
+  background: var(--bg-container);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
 .cartItemCard:hover {
   transform: translateX(4px);
+  background-color: var(--bg-hover);
 }
 
 .itemInfo {
@@ -62,30 +86,30 @@
 .bookTitle {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-main);
   margin-bottom: 4px;
 }
 
 .pricePerOne {
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 
 .removeBtn {
   background: transparent;
   border: none;
-  color: #ef4444;
+  color: var(--danger);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
-  transition: color 0.2s;
+  transition: opacity 0.2s;
 }
 
 .removeBtn:hover {
-  color: #b91c1c;
+  opacity: 0.8;
 }
 
 .itemActions {
@@ -99,28 +123,28 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
-/* Степпер */
 .quantityStepper {
   display: flex;
   align-items: center;
-  background: #f3f4f6;
+  background: var(--bg-input);
   padding: 4px;
-  border-radius: 12px;
+  border-radius: var(--radius-capsule);
 }
 
 .stepBtn {
   width: 36px;
   height: 36px;
-  border: none;
-  background: white;
+  border: 1px solid var(--border-color);
+  background: var(--bg-container);
+  color: var(--text-main);
   border-radius: 8px;
   font-size: 1.25rem;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +152,7 @@
 }
 
 .stepBtn:hover {
-  background: #f9fafb;
+  background: var(--bg-hover);
 }
 
 .qtyValue {
@@ -136,6 +160,7 @@
   font-weight: 700;
   min-width: 40px;
   text-align: center;
+  color: var(--text-main);
 }
 
 .priceSection {
@@ -146,27 +171,27 @@
 .itemTotalPrice {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
 }
 
-/* Саммари */
 .summarySticky {
   position: sticky;
   top: 100px;
 }
 
 .summaryCard {
-  background: white;
+  background: var(--bg-container);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 32px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
 }
 
 .summaryTitle {
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 24px;
-  color: #111827;
+  color: var(--text-main);
 }
 
 .summaryDetails {
@@ -179,7 +204,7 @@
 .summaryRow {
   display: flex;
   justify-content: space-between;
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -190,30 +215,30 @@
 
 .totalRow {
   padding-top: 16px;
-  border-top: 2px dashed #f3f4f6;
-  color: #111827;
+  border-top: 2px dashed var(--border-color);
+  color: var(--text-main);
 }
 
 .finalPrice {
   font-size: 1.75rem;
   font-weight: 900;
-  color: #4A6CF7;
+  color: var(--accent);
 }
 
 .secureNote {
   text-align: center;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-top: 16px;
 }
 
-/* Пустое состояние */
 .emptyCard {
-  background: white;
+  background: var(--bg-container);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 60px;
   text-align: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
 }
 
 .emptyIcon {
@@ -221,7 +246,6 @@
   margin-bottom: 20px;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
   .cartGrid {
     grid-template-columns: 1fr;

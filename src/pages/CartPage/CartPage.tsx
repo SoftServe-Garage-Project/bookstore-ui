@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { cartService, CartResponse } from "../../services/cartService/cartService";
+import {
+  cartService,
+  CartResponse,
+} from "../../services/cartService/cartService";
 import { Order, orderService } from "../../services/orderService/orderService";
 import Button from "../../components/Button/Button";
 import Header from "../../components/Header/Header";
@@ -71,7 +74,8 @@ const CartPage = () => {
     const updatedItems = cartData.items.map((item) => {
       if (item.id === itemInCartId) {
         const nextQty = Math.max(1, item.quantity + delta);
-        if (timers.current[itemInCartId]) clearTimeout(timers.current[itemInCartId]);
+        if (timers.current[itemInCartId])
+          clearTimeout(timers.current[itemInCartId]);
         timers.current[itemInCartId] = setTimeout(() => {
           performUpdate(itemInCartId, nextQty);
         }, 800);
@@ -83,21 +87,26 @@ const CartPage = () => {
     setCartData({ ...cartData, items: updatedItems });
   };
 
-  if (loading && !cartData) return <div className={styles.loader}>Loading cart...</div>;
-
   return (
     <div className={styles.pageWrapper}>
-      <Header isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
+      <Header
+        isMenuOpen={isMenuOpen}
+        onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
+      />
 
       <main className={styles.container}>
         <header className={styles.pageHeader}>
           <h1 className={styles.title}>Shopping Cart</h1>
           <p className={styles.countInfo}>
-            {cartData?.items.length || 0} {cartData?.items.length === 1 ? 'item' : 'items'} in your bag
+            {loading
+              ? "Loading..."
+              : `${cartData?.items.length || 0} ${cartData?.items.length === 1 ? "item" : "items"} in your bag`}
           </p>
         </header>
 
-        {!cartData || cartData.items.length === 0 ? (
+        {loading ? (
+          <div className={styles.loader}>Loading cart...</div>
+        ) : !cartData || cartData.items.length === 0 ? (
           <div className={styles.emptyCard}>
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any books yet.</p>
@@ -110,8 +119,10 @@ const CartPage = () => {
                 <div key={item.id} className={styles.cartItemCard}>
                   <div className={styles.itemInfo}>
                     <h3 className={styles.bookTitle}>{item.bookTitle}</h3>
-                    <p className={styles.pricePerOne}>${item.price.toFixed(2)} per unit</p>
-                    <button 
+                    <p className={styles.pricePerOne}>
+                      ${item.price.toFixed(2)} per unit
+                    </p>
+                    <button
                       className={styles.removeBtn}
                       onClick={() => handleRemove(item.id)}
                     >
@@ -123,15 +134,19 @@ const CartPage = () => {
                     <div className={styles.stepperContainer}>
                       <span className={styles.label}>Quantity</span>
                       <div className={styles.quantityStepper}>
-                        <button 
+                        <button
                           className={styles.stepBtn}
                           onClick={() => changeQuantity(item.id, -1)}
-                        >−</button>
+                        >
+                          −
+                        </button>
                         <span className={styles.qtyValue}>{item.quantity}</span>
-                        <button 
+                        <button
                           className={styles.stepBtn}
                           onClick={() => changeQuantity(item.id, 1)}
-                        >+</button>
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
 
@@ -192,10 +207,17 @@ const CartPage = () => {
           message={
             modalState === "success" && lastOrder ? (
               <div className={styles.modalContent}>
-                <p>Order <strong>#{lastOrder.id}</strong> has been successfully processed.</p>
-                <p className={styles.modalTotal}>Paid: ${lastOrder.totalAmount.toFixed(2)}</p>
+                <p>
+                  Order <strong>#{lastOrder.id}</strong> has been successfully
+                  processed.
+                </p>
+                <p className={styles.modalTotal}>
+                  Paid: ${lastOrder.totalAmount.toFixed(2)}
+                </p>
               </div>
-            ) : "Unable to process order. Please check your balance."
+            ) : (
+              "Unable to process order. Please check your balance."
+            )
           }
         />
       </main>
