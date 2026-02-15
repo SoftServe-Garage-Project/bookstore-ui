@@ -50,12 +50,41 @@ export const orderService = {
 
     return response.json();
   },
+  
+  confirmOrder: async (promoCode?: string): Promise<Order> => {
+    const response = await authService.authorizedFetch(`${API_ORDERS_URL}/checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: promoCode ? JSON.stringify({ promoCode }) : JSON.stringify({}),
+    });
 
-  confirmOrder: async (): Promise<Order> => {
-  const response = await authService.authorizedFetch(`${API_ORDERS_URL}/checkout`, {
-    method: 'POST',
-  });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Error while confirming an order' }));
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
 
-  return response.json(); 
-}
+    return response.json();
+  },
+
+  buyNow: async (bookId: number, quantity: number, promoCode?: string): Promise<Order> => {
+    const response = await authService.authorizedFetch(`${API_ORDERS_URL}/buy-now`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bookId,
+        quantity,
+        ...(promoCode && { promoCode })
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error while processing buy now order');
+    }
+
+    return response.json();
+  }
 };

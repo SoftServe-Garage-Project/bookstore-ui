@@ -32,6 +32,7 @@ function App() {
             console.log("Авторизація через Google успішна!");
           }
         })
+        .finally(() => window.location.reload())
         .catch((err) => console.error("Помилка підтягування даних:", err));
     }
   }, []);

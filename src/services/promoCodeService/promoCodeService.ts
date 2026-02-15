@@ -1,4 +1,4 @@
-import { authService } from '../authService/authService';
+import { authService } from "../authService/authService";
 
 export interface PromoCode {
   id: number;
@@ -13,7 +13,15 @@ export interface PromoCode {
   isActive: boolean;
 }
 
-const API_URL = '/api/promo-codes';
+export interface PromoCodeValidationResponseDTO {
+  valid: boolean;
+  message?: string;
+  discountPercentage?: number;
+  discountAmount?: number;
+  finalAmount?: number;
+}
+
+const API_URL = "/api/promo-codes";
 
 export const promoCodeService = {
   getAll: async (): Promise<PromoCode[]> => {
@@ -25,7 +33,7 @@ export const promoCodeService = {
 
   create: async (data: Partial<PromoCode>) => {
     const res = await authService.authorizedFetch(API_URL, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error("Creation failed");
@@ -34,7 +42,7 @@ export const promoCodeService = {
 
   update: async (id: number, data: Partial<PromoCode>) => {
     const res = await authService.authorizedFetch(`${API_URL}/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error("Update failed");
@@ -42,15 +50,46 @@ export const promoCodeService = {
   },
 
   delete: async (id: number) => {
-    const res = await authService.authorizedFetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    const res = await authService.authorizedFetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
     if (!res.ok) throw new Error("Delete failed");
   },
 
   toggleActive: async (id: number, active: boolean) => {
-    const action = active ? 'activate' : 'deactivate';
-    const res = await authService.authorizedFetch(`${API_URL}/${id}/${action}`, {
-      method: 'PATCH',
-    });
+    const action = active ? "activate" : "deactivate";
+    const res = await authService.authorizedFetch(
+      `${API_URL}/${id}/${action}`,
+      {
+        method: "PATCH",
+      }
+    );
     if (!res.ok) throw new Error(`Failed to ${action}`);
-  }
+  },
+
+  validatePromo: async (
+    promoCode: string,
+    currentTotal: number
+  ): Promise<PromoCodeValidationResponseDTO> => {
+    const response = await authService.authorizedFetch(
+      `/api/promo-codes/validate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: promoCode,
+          orderAmount: currentTotal,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Invalid promo code");
+    }
+
+    return response.json();
+  },
 };

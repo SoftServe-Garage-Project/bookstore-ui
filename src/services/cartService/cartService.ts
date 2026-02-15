@@ -61,7 +61,7 @@ export const cartService = {
     }
   },
 
-  /** FOR FUTURE USE
+  
   updateQuantity: async (bookInCartId: number, newQuantity: number): Promise<void> => {
     const response = await authService.authorizedFetch(`${API_CART_ITEMS_URL}/${bookInCartId}`, {
       method: 'PUT',
@@ -72,10 +72,5 @@ export const cartService = {
       throw new Error('Failed to update quantity');
     }
   },
-  */
-  updateQuantity: async (bookInCartId: number, newQuantity: number): Promise<void> => {
-    await cartService.removeFromCart(bookInCartId);
-    await cartService.addToCart({ bookId: bookInCartId, quantity: newQuantity });
-  }
 
 };
