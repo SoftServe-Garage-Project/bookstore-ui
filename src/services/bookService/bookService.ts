@@ -111,19 +111,6 @@ export const fetchAgeGroups = async (): Promise<AgeGroup[]> => {
   return data.content || [];
 };
 
-export const fetchBookById = async (id: number): Promise<Book | null> => {
-  try {
-    //`${API_URL}/${id}`
-    const response = await fetchBooks({ page: 0, size: 100 });
-    const book = response.content.find((b) => b.id === id);
-    return book || null;
-  } catch (error) {
-    console.error("Error fetching book by id:", error);
-    return null;
-  }
-};
-
-/**
 export const fetchBookById = async (id: number): Promise<Book> => {
   const response = await authService.publicFetch(`${API_URL}/${id}`);
   
@@ -132,7 +119,6 @@ export const fetchBookById = async (id: number): Promise<Book> => {
   }
   return response.json();
 };
-*/
 
 export const createBook = async (bookData: Omit<Book, "id">): Promise<Book> => {
   const response = await authService.authorizedFetch(API_URL, {
