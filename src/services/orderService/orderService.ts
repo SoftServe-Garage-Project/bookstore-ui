@@ -1,4 +1,4 @@
-import { authService } from './../authService/authService';
+import { authService } from "./../authService/authService";
 
 export interface OrderItem {
   bookId: number;
@@ -12,8 +12,8 @@ export interface OrderItem {
 export interface Order {
   id: number;
   totalAmount: number;
-  status: 'PENDING' | 'PAID' | 'CANCELLED' | 'DELIVERED' | string;
-  paymentMethod: 'BALANCE' | 'CARD' | string;
+  status: "PENDING" | "PAID" | "CANCELLED" | "DELIVERED" | string;
+  paymentMethod: "BALANCE" | "CARD" | string;
   createdAt: string;
   items: OrderItem[];
 }
@@ -29,62 +29,90 @@ export interface OrderPageResponse {
   empty: boolean;
 }
 
-const API_ORDERS_URL = '/api/orders';
+const API_ORDERS_URL = "/api/orders";
 
 export const orderService = {
-  getOrders: async (page: number = 0, size: number = 10): Promise<OrderPageResponse> => {
+  getOrders: async (
+    page: number = 0,
+    size: number = 10
+  ): Promise<OrderPageResponse> => {
     const params = new URLSearchParams({
       page: page.toString(),
       size: size.toString(),
-      sort: 'createdAt,desc'
+      sort: "createdAt,desc",
     });
 
-    const response = await authService.authorizedFetch(`${API_ORDERS_URL}?${params.toString()}`, {
-      method: 'GET',
-    });
+    const response = await authService.authorizedFetch(
+      `${API_ORDERS_URL}?${params.toString()}`,
+      {
+        method: "GET",
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to fetch orders: ${response.status} ${errorText}`);
+      throw new Error(
+        `Failed to fetch orders: ${response.status} ${errorText}`
+      );
     }
 
     return response.json();
   },
-  
+
   confirmOrder: async (promoCode?: string): Promise<Order> => {
-    const response = await authService.authorizedFetch(`${API_ORDERS_URL}/checkout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: promoCode ? JSON.stringify({ promoCode }) : JSON.stringify({}),
-    });
+    const response = await authService.authorizedFetch(
+      `${API_ORDERS_URL}/checkout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: promoCode ? JSON.stringify({ promoCode }) : JSON.stringify({}),
+      }
+    );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error while confirming an order' }));
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "Error while confirming an order" }));
       throw new Error(errorData.message || `Error: ${response.status}`);
     }
 
     return response.json();
   },
 
-  buyNow: async (bookId: number, quantity: number, promoCode?: string): Promise<Order> => {
-    const response = await authService.authorizedFetch(`${API_ORDERS_URL}/buy-now`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bookId,
-        quantity,
-        ...(promoCode && { promoCode })
-      }),
-    });
+  buyNow: async (
+    bookId: number,
+    quantity: number,
+    promoCode?: string
+  ): Promise<Order> => {
+    const body: any = { bookId, quantity };
+    if (promoCode) body.promoCode = promoCode;
 
-    if (!response.ok) {
-      throw new Error('Error while processing buy now order');
+    const response = await authService.authorizedFetch(
+      `${API_ORDERS_URL}/buy-now`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const contentType = response.headers.get("content-type");
+    let responseData;
+
+    if (contentType && contentType.includes("application/json")) {
+      responseData = await response.json();
+    } else {
+      responseData = { message: await response.text() };
     }
 
-    return response.json();
-  }
+    if (!response.ok) {
+      throw new Error(
+        responseData.message || responseData.error || "Quick purchase failed"
+      );
+    }
+
+    return responseData;
+  },
 };
