@@ -1,3 +1,5 @@
+import { get } from "http";
+
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
 interface LoginData {
@@ -130,6 +132,7 @@ export const authService = {
   },
 
   saveUserInfo(data: any) {
+    if (data.username) localStorage.setItem("userName", data.username);
     if (data.email) localStorage.setItem("email", data.email);
     let roles: string[] = [];
     if (Array.isArray(data.roles)) roles = data.roles;
@@ -141,10 +144,14 @@ export const authService = {
   },
 
   clearUserInfo() {
+    localStorage.removeItem("userName");
     localStorage.removeItem("email");
     localStorage.removeItem("userRoles");
   },
-
+  getUserName() {
+    return localStorage.getItem("userName");
+  },
+  
   getUserEmail() {
     return localStorage.getItem("email");
   },

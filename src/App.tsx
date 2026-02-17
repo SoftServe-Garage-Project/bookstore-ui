@@ -12,6 +12,7 @@ import PromoCodePage from "./pages/PromoCodePage/PromoCodePage";
 import { authService } from "./services/authService/authService";
 import { useEffect } from "react";
 import { ThemeProvider } from "./ThemeContext";
+import AdminBooksPage from "./pages/AdminBooksPage/AdminBooksPage";
 
 function App() {
   useEffect(() => {
@@ -49,6 +50,7 @@ function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/promocodes" element={<PromoCodePage />} />
+          <Route path="/editbook" element={<AdminBooksPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
