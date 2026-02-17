@@ -9,6 +9,11 @@ import Header from "../../components/Header/Header";
 import styles from "./CartPage.module.css";
 import { useNavigate } from "react-router-dom";
 import { StatusModal } from "../../components/StatusModal/StatusModal";
+import { promoCodeService } from "../../services/promoCodeService/promoCodeService";
+import {
+  authService,
+  UserProfile,
+} from "../../services/authService/authService";
 
 const CartPage = () => {
   const [cartData, setCartData] = useState<CartResponse | null>(null);
@@ -17,6 +22,10 @@ const CartPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalState, setModalState] = useState<"success" | "error">("success");
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
+  const [promoCode, setPromoCode] = useState("");
+  const [discountedTotal, setDiscountedTotal] = useState<number | null>(null);
+  const [promoError, setPromoError] = useState("");
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const navigate = useNavigate();
   const timers = useRef<{ [key: number]: NodeJS.Timeout }>({});
@@ -34,6 +43,26 @@ const CartPage = () => {
 
   useEffect(() => {
     loadCart();
+  }, []);
+
+  const loadInitialData = async () => {
+    setLoading(true);
+    try {
+      const [cart, profile] = await Promise.all([
+        cartService.getCartItems(),
+        authService.getUserBallance(),
+      ]);
+      setCartData(cart);
+      setUserProfile(profile);
+    } catch (error) {
+      console.error("Data loading failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadInitialData();
   }, []);
 
   const performUpdate = async (itemInCartId: number, newQuantity: number) => {
@@ -57,7 +86,9 @@ const CartPage = () => {
 
   const handleCheckout = async () => {
     try {
-      const orderData = await orderService.confirmOrder();
+      const orderData = await orderService.confirmOrder(
+        promoCode.trim() || undefined
+      );
       setLastOrder(orderData);
       setModalState(orderData.status === "PAID" ? "success" : "error");
       if (orderData.status === "PAID") setCartData(null);
@@ -86,6 +117,35 @@ const CartPage = () => {
 
     setCartData({ ...cartData, items: updatedItems });
   };
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim() || !cartData) return;
+
+    try {
+      setPromoError("");
+      const data = await promoCodeService.validatePromo(
+        promoCode.trim(),
+        cartData.totalPrice
+      );
+
+      if (data.valid && data.finalAmount !== undefined) {
+        setDiscountedTotal(data.finalAmount);
+      } else {
+        setPromoError(data.message || "Promocode invalid");
+        setDiscountedTotal(null);
+      }
+    } catch (error: any) {
+      setPromoError(error.message || "Error while validating");
+      setDiscountedTotal(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!promoCode) {
+      setDiscountedTotal(null);
+      setPromoError("");
+    }
+  }, [promoCode]);
 
   return (
     <div className={styles.pageWrapper}>
@@ -164,21 +224,85 @@ const CartPage = () => {
             <aside className={styles.summarySticky}>
               <div className={styles.summaryCard}>
                 <h3 className={styles.summaryTitle}>Order Summary</h3>
+
+                <div className={styles.promoSection}>
+                  <div className={styles.promoInputWrapper}>
+                    <input
+                      type="text"
+                      className={`${styles.promoInput} ${promoError ? styles.inputError : ""}`}
+                      placeholder="Enter promo code"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                    />
+                    <button
+                      className={styles.applyBtn}
+                      onClick={handleApplyPromo}
+                      disabled={!promoCode.trim()}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className={styles.errorText}>{promoError}</p>
+                  )}
+                </div>
+
                 <div className={styles.summaryDetails}>
                   <div className={styles.summaryRow}>
                     <span>Subtotal</span>
-                    <span>${cartData.totalPrice.toFixed(2)}</span>
+                    <span
+                      className={discountedTotal ? styles.strikethrough : ""}
+                    >
+                      ${cartData.totalPrice.toFixed(2)}
+                    </span>
                   </div>
+
+                  {discountedTotal && (
+                    <div
+                      className={`${styles.summaryRow} ${styles.discountRow}`}
+                    >
+                      <span>Promo Discount</span>
+                      <span>
+                        -${(cartData.totalPrice - discountedTotal).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
                   <div className={styles.summaryRow}>
                     <span>Shipping</span>
                     <span className={styles.free}>Free</span>
                   </div>
+
                   <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                     <span>Total Amount</span>
                     <span className={styles.finalPrice}>
-                      ${cartData.totalPrice.toFixed(2)}
+                      ${(discountedTotal ?? cartData.totalPrice).toFixed(2)}
                     </span>
                   </div>
+
+                  {userProfile && (
+                    <div className={styles.balanceInfo}>
+                      <div className={styles.summaryRow}>
+                        <span>Your Balance</span>
+                        <span
+                          className={
+                            userProfile.balance <
+                            (discountedTotal ?? cartData.totalPrice)
+                              ? styles.lowBalance
+                              : styles.okBalance
+                          }
+                        >
+                          ${userProfile.balance.toFixed(2)}
+                        </span>
+                      </div>
+                      {userProfile.balance <
+                        (discountedTotal ?? cartData.totalPrice) && (
+                        <p className={styles.balanceWarning}>
+                          Insufficient funds
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -186,10 +310,15 @@ const CartPage = () => {
                   fullWidth
                   size="lg"
                   onClick={handleCheckout}
+                  disabled={
+                    userProfile
+                      ? userProfile.balance <
+                        (discountedTotal ?? cartData.totalPrice)
+                      : false
+                  }
                 >
                   Confirm Checkout
                 </Button>
-                <p className={styles.secureNote}>Secure Checkout</p>
               </div>
             </aside>
           </div>

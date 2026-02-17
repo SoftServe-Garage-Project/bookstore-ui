@@ -64,7 +64,7 @@ export const fetchBooks = async (
     }
   });
 
-  const response = await authService.publicFetch(
+  const response = await authService.authorizedFetch(
     `${API_URL}?${query.toString()}`,
     {
       method: "GET",
@@ -81,7 +81,7 @@ export const fetchBooks = async (
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  const response = await authService.publicFetch(GENRES_API_URL, {
+  const response = await authService.authorizedFetch(GENRES_API_URL, {
     method: "GET",
   });
 
@@ -98,14 +98,14 @@ export const fetchGenres = async (): Promise<Genre[]> => {
 export const fetchLanguages = async (): Promise<
   { code: string; name: string }[]
 > => {
-  const response = await authService.publicFetch("/api/languages");
+  const response = await authService.authorizedFetch("/api/languages");
   if (!response.ok) throw new Error("Failed to fetch languages");
   const data = await response.json();
   return data.content || [];
 };
 
 export const fetchAgeGroups = async (): Promise<AgeGroup[]> => {
-  const response = await authService.publicFetch("/api/ageGroups");
+  const response = await authService.authorizedFetch("/api/ageGroups");
   if (!response.ok) throw new Error("Failed to fetch age groups");
   const data = await response.json();
   return data.content || [];
@@ -141,7 +141,7 @@ export const createBook = async (bookData: Omit<Book, "id">): Promise<Book> => {
   });
 
   if (!response.ok) {
-    throw new Error("Ошибка при создании книги");
+    throw new Error("Error while creating a book");
   }
   return response.json();
 };
@@ -156,7 +156,7 @@ export const updateBook = async (
   });
 
   if (!response.ok) {
-    throw new Error("Ошибка при обновлении книги");
+    throw new Error("Error while updating a book");
   }
   return response.json();
 };
@@ -167,7 +167,7 @@ export const deleteBook = async (id: number): Promise<void> => {
   });
 
   if (!response.ok) {
-    throw new Error("Ошибка при удалении книги");
+    throw new Error("Error while deleting a book");
   }
 };
 

@@ -6,12 +6,18 @@ import {
   Review,
 } from "../../services/reviewService/reviewService";
 import Button from "../../components/Button/Button";
-import styles from "./BookDetails.module.css";
 import Header from "../../components/Header/Header";
-import { cartService } from "../../services/cartService/cartService";
 import AddToCartModal from "../../components/AddToCartModal/AddToCartModal";
-import { authService } from "../../services/authService/authService";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
+import { StatusModal } from "../../components/StatusModal/StatusModal";
+import { Order, orderService } from "../../services/orderService/orderService";
+import { cartService } from "../../services/cartService/cartService";
+import {
+  authService,
+  UserProfile,
+} from "../../services/authService/authService";
+import { promoCodeService } from "../../services/promoCodeService/promoCodeService";
+import styles from "./BookDetails.module.css";
 
 const BookDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,48 +25,105 @@ const BookDetailsPage = () => {
 
   const [book, setBook] = useState<Book | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [promoCode, setPromoCode] = useState("");
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
 
   const [newComment, setNewComment] = useState("");
   const [rating, setRating] = useState(5);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
 
-  const loadData = async () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"cart" | "status">("cart");
+  const [modalState, setModalState] = useState<"success" | "error">("success");
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const loadInitialData = async () => {
     if (!id) return;
     setLoading(true);
     try {
-      const bookData = await fetchBookById(Number(id));
-      if (bookData) {
-        setBook(bookData);
-        const reviewsData = await reviewService.fetchReviewsByBookId(
-          Number(id)
-        );
-        setReviews(reviewsData);
-      }
+      const [bookData, profileData, reviewsData] = await Promise.all([
+        fetchBookById(Number(id)),
+        authService.getUserBallance().catch(() => null),
+        reviewService.fetchReviewsByBookId(Number(id)).catch(() => []),
+      ]);
+
+      setBook(bookData);
+      setUserProfile(profileData);
+      setReviews(reviewsData);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      console.error("Data loading failed:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadInitialData();
   }, [id]);
 
-  const handleAddToCart = async () => {
-    if (!book) return;
+  const currentTotalPrice =
+    discountedPrice ?? (book ? book.price * quantity : 0);
+  const hasEnoughFunds = userProfile
+    ? userProfile.balance >= currentTotalPrice
+    : true;
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim() || !book) return;
+    setIsValidatingPromo(true);
+    setPromoError("");
     try {
-      await cartService.addToCart({ bookId: book.id, quantity: quantity });
+      const data = await promoCodeService.validatePromo(
+        promoCode.trim(),
+        book.price * quantity
+      );
+      if (data.valid && data.finalAmount !== undefined) {
+        setDiscountedPrice(data.finalAmount);
+      } else {
+        setPromoError(data.message || "Invalid code");
+        setDiscountedPrice(null);
+      }
+    } catch (error: any) {
+      setPromoError(error.message || "Validation error");
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!book || !hasEnoughFunds) return;
+    setIsPurchasing(true);
+    try {
+      const orderData = await orderService.buyNow(
+        book.id,
+        quantity,
+        promoCode.trim() || undefined
+      );
+      setLastOrder(orderData);
+      setModalType("status");
+      setModalState("success");
       setIsModalOpen(true);
-    } catch (error) {
-      alert("Error adding to cart.");
+      const updatedProfile = await authService
+        .getUserBallance()
+        .catch(() => null);
+      setUserProfile(updatedProfile);
+    } catch (error: any) {
+      setModalType("status");
+      setModalState("error");
+      setErrorMessage(error.message);
+      setIsModalOpen(true);
+    } finally {
+      setIsPurchasing(false);
     }
   };
 
@@ -71,12 +134,14 @@ const BookDetailsPage = () => {
     try {
       await reviewService.addReview({
         bookId: Number(id),
-        rating: rating,
+        rating,
         comment: newComment,
       });
       setNewComment("");
-      const reviewsData = await reviewService.fetchReviewsByBookId(Number(id));
-      setReviews(reviewsData);
+      const updatedReviews = await reviewService.fetchReviewsByBookId(
+        Number(id)
+      );
+      setReviews(updatedReviews);
     } catch (error: any) {
       alert(error.message || "Error submitting review.");
     } finally {
@@ -84,180 +149,288 @@ const BookDetailsPage = () => {
     }
   };
 
-  const openDeleteConfirm = (reviewId: number) => {
-    setReviewToDelete(reviewId);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (reviewToDelete === null) return;
-    try {
-      await reviewService.deleteReview(reviewToDelete);
-      setReviews((prev) => prev.filter((r) => r.id !== reviewToDelete));
-    } catch (error) {
-      alert("Could not delete review.");
-    } finally {
-      setReviewToDelete(null);
-    }
-  };
+  useEffect(() => {
+    setDiscountedPrice(null);
+    setPromoError("");
+  }, [quantity, promoCode]);
 
   return (
     <div className={styles.pageWrapper}>
-      <Header
-        isMenuOpen={isMenuOpen}
-        onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
-      />
+      <div className={styles.headerFixed}>
+        <Header
+          isMenuOpen={isMenuOpen}
+          onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
+        />
+      </div>
 
-      {loading && !book ? (
-        <div className={styles.loader}>Loading book details...</div>
-      ) : !book ? (
-        <div className={styles.error}>Book not found</div>
-      ) : (
-        <>
-          <div className={styles.mainGrid}>
-            <div className={styles.imageSection}>
-              {book.coverImageUrl ? (
-                <img src={book.coverImageUrl} alt={book.title} />
-              ) : (
-                <div className={styles.placeholder}>No Cover</div>
-              )}
-            </div>
-            <div className={styles.infoSection}>
-              <div className={styles.badgeRow}>
-                <span className={styles.genreBadge}>{book.genre}</span>
-                <span className={styles.ageBadge}>{book.ageGroup}</span>
+      <main className={styles.container}>
+        {loading && !book ? (
+          <div className={styles.loader}>Searching the shelves...</div>
+        ) : !book ? (
+          <div className={styles.error}>Book not found.</div>
+        ) : (
+          <>
+            <div className={styles.mainGrid}>
+              <div className={styles.imageSection}>
+                {book.coverImageUrl ? (
+                  <img src={book.coverImageUrl} alt={book.title} />
+                ) : (
+                  <div className={styles.placeholder}>No Cover</div>
+                )}
               </div>
-              <h1 className={styles.title}>{book.title}</h1>
-              <p className={styles.author}>
-                by{" "}
-                {book.authors
-                  .map((a) => `${a.firstName} ${a.lastName}`)
-                  .join(", ")}
-              </p>
-              <div className={styles.priceContainer}>
-             <span className={styles.currentPrice}>${book.price.toFixed(2)}</span>
-             {book.discountPercentage > 0 && (
-               <span className={styles.discountBadge}>-{book.discountPercentage}%</span>
-             )}
-          </div>
 
-          <div className={styles.detailsList}>
-            <p><strong>Year:</strong> {book.publishedYear}</p>
-            <p><strong>Pages:</strong> {book.pageCount}</p>
-            <p><strong>Language:</strong> {book.languageCode}</p>
-            <p>{book.stockQuantity > 0 ? (
-                <span className={styles.inStockBadge}>
-                <strong>In stock:</strong> {book.stockQuantity}
-                </span>
-            ) : (
-                <span className={styles.outOfStockBadge}>
-                OUT OF STOCK
-                </span>
-            )}</p>
-          </div>
-              <p className={styles.description}>{book.description}</p>
-              <div className={styles.buyCard}>
-                <div className={styles.qtyRow}>
-                  <input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className={styles.qtyInput}
-                  />
-                  <Button
-                    variant="outline"
-                    fullWidth
-                    onClick={handleAddToCart}
-                    disabled={book.stockQuantity === 0}
-                  >
-                    Add to Cart
-                  </Button>
+              <div className={styles.infoSection}>
+                <div className={styles.badgeRow}>
+                  <span className={styles.genreBadge}>{book.genre}</span>
+                  <span className={styles.ageBadge}>{book.ageGroup}</span>
                 </div>
-              </div>
-            </div>
-          </div>
+                <h1 className={styles.title}>{book.title}</h1>
+                <p className={styles.author}>
+                  by{" "}
+                  {book.authors
+                    .map((a) => `${a.firstName} ${a.lastName}`)
+                    .join(", ")}
+                </p>
 
-          <section className={styles.reviewsSection}>
-            <div className={styles.sectionHeader}>
-              <h2>Customer Reviews</h2>
-              {loading && (
-                <span className={styles.smallLoader}>Updating...</span>
-              )}
-            </div>
-
-            {/* Форма отзыва ... код как был ... */}
-            <form onSubmit={handleSubmitReview} className={styles.reviewForm}>
-              <div className={styles.ratingSelect}>
-                <select
-                  value={rating}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                >
-                  {[5, 4, 3, 2, 1].map((n) => (
-                    <option key={n} value={n}>
-                      {n} Stars
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write your review..."
-                className={styles.commentArea}
-              />
-              <Button type="submit" disabled={isSubmittingReview}>
-                {isSubmittingReview ? "Sending..." : "Submit Review"}
-              </Button>
-            </form>
-
-            <div className={styles.reviewsList}>
-              {reviews.map((review) => (
-                <div key={review.id} className={styles.reviewItem}>
-                  <div className={styles.reviewMeta}>
-                    <strong>{review.userName}</strong>
-                    <span className={styles.rating}>
-                      {"★".repeat(review.rating)}
+                <div className={styles.detailsList}>
+                  <div className={styles.detailItem}>
+                    <strong>Year</strong>
+                    <span>{book.publishedYear}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <strong>Pages</strong>
+                    <span>{book.pageCount}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <strong>Lang</strong>
+                    <span>{book.languageCode}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <strong>Stock</strong>
+                    <span
+                      className={
+                        book.stockQuantity > 0
+                          ? styles.inStock
+                          : styles.outOfStock
+                      }
+                    >
+                      {book.stockQuantity > 0 ? book.stockQuantity : "Sold Out"}
                     </span>
-                    <small>
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </small>
+                  </div>
+                </div>
 
-                    {((authService.getUserName() &&
-                      review.userName === authService.getUserName()) ||
-                      authService.getUserRoles() === "ADMIN") && (
-                      <Button
-                        variant="error"
-                        onClick={() => openDeleteConfirm(review.id)} // Вызываем открытие модалки
+                <p className={styles.description}>{book.description}</p>
+
+                <div className={styles.buyCard}>
+                  <div className={styles.priceRow}>
+                    <div className={styles.priceCol}>
+                      <span
+                        className={
+                          discountedPrice
+                            ? styles.oldPrice
+                            : styles.currentPrice
+                        }
                       >
-                        Delete
-                      </Button>
+                        ${(book.price * quantity).toFixed(2)}
+                      </span>
+                      {discountedPrice && (
+                        <span className={styles.newPrice}>
+                          ${discountedPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    {userProfile && (
+                      <div className={styles.balanceTag}>
+                        <span>Your Balance:</span>
+                        <strong
+                          className={
+                            hasEnoughFunds
+                              ? styles.okBalance
+                              : styles.lowBalance
+                          }
+                        >
+                          ${userProfile.balance.toFixed(2)}
+                        </strong>
+                      </div>
                     )}
                   </div>
-                  <p>{review.comment}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
 
-      {/* Модалка подтверждения удаления */}
+                  <div className={styles.controlsGrid}>
+                    <div className={styles.inputGroup}>
+                      <label>Qty</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        className={styles.qtyInput}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={styles.inputGroup}>
+                      <label>Promo Code</label>
+                      <div className={styles.promoActionWrapper}>
+                        <input
+                          type="text"
+                          value={promoCode}
+                          className={styles.promoInput}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          placeholder="SUMMER2026"
+                        />
+                        <button
+                          className={styles.validateBtn}
+                          onClick={handleApplyPromo}
+                          disabled={!promoCode.trim() || isValidatingPromo}
+                        >
+                          {isValidatingPromo ? "..." : "Apply"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {promoError && (
+                    <p className={styles.promoErrorText}>{promoError}</p>
+                  )}
+                  {!hasEnoughFunds && (
+                    <p className={styles.promoErrorText}>
+                      Insufficient balance.
+                    </p>
+                  )}
+
+                  <div className={styles.actionRow}>
+                    <Button
+                      variant="outline"
+                      fullWidth
+                      onClick={() =>
+                        cartService
+                          .addToCart({ bookId: book.id, quantity })
+                          .then(() => {
+                            setModalType("cart");
+                            setIsModalOpen(true);
+                          })
+                      }
+                    >
+                      Add to Cart
+                    </Button>
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      onClick={handleBuyNow}
+                      disabled={
+                        isPurchasing ||
+                        !hasEnoughFunds ||
+                        book.stockQuantity === 0
+                      }
+                    >
+                      {isPurchasing ? "Processing..." : "Buy Now"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <section className={styles.reviewsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Customer Reviews</h2>
+              </div>
+
+              <form onSubmit={handleSubmitReview} className={styles.reviewForm}>
+                <div className={styles.ratingSelect}>
+                  <span>Rating:</span>
+                  <select
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                  >
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>
+                        {n} Stars
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Share your thoughts about this book..."
+                  className={styles.commentArea}
+                />
+                <Button type="submit" disabled={isSubmittingReview}>
+                  {isSubmittingReview ? "Posting..." : "Submit Review"}
+                </Button>
+              </form>
+
+              <div className={styles.reviewsList}>
+                {reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <div key={review.id} className={styles.reviewItem}>
+                      <div className={styles.reviewMeta}>
+                        <strong>{review.userName}</strong>
+                        <span className={styles.stars}>
+                          {"★".repeat(review.rating)}
+                        </span>
+                        <small>
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </small>
+                        {((authService.getUserName() &&
+                          review.userName === authService.getUserName()) ||
+                          authService.getUserRoles() === "ADMIN") && (
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => {
+                              setReviewToDelete(review.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                      <p>{review.comment}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className={styles.noReviews}>
+                    No reviews yet. Be the first!
+                  </p>
+                )}
+              </div>
+            </section>
+          </>
+        )}
+      </main>
+
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
+        onConfirm={async () => {
+          if (reviewToDelete) {
+            await reviewService.deleteReview(reviewToDelete);
+            setReviews((prev) => prev.filter((r) => r.id !== reviewToDelete));
+            setIsDeleteModalOpen(false);
+          }
+        }}
         title="Delete Review?"
-        message="This action cannot be undone. Are you sure you want to delete your review?"
+        message="This action cannot be undone."
       />
 
-      {book && (
+      {modalType === "cart" ? (
         <AddToCartModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          bookTitle={book.title}
-          bookImage={book.coverImageUrl}
+          bookTitle={book?.title || ""}
+          bookImage={book?.coverImageUrl || null}
           quantity={quantity}
+        />
+      ) : (
+        <StatusModal
+          isOpen={isModalOpen}
+          type={modalState}
+          title={modalState === "success" ? "Success!" : "Error"}
+          message={
+            modalState === "success"
+              ? `Order #${lastOrder?.id} placed.`
+              : errorMessage
+          }
+          onClose={() => setIsModalOpen(false)}
         />
       )}
     </div>

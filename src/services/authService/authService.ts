@@ -12,6 +12,13 @@ interface RegisterData {
   email: string;
   password: string;
 }
+export interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  balance: number;
+  role: string;
+}
 
 export const authService = {
   async login(data: LoginData) {
@@ -31,7 +38,7 @@ export const authService = {
     if (!res.ok) {
       const errorText = await res.text();
       console.error("Login failed:", res.status, errorText);
-      throw new Error("Невірний логін або пароль");
+      throw new Error("Incorrect email or password");
     }
 
     const userData = await res.json();
@@ -155,9 +162,18 @@ export const authService = {
   getUserEmail() {
     return localStorage.getItem("email");
   },
+
   getUserRoles() {
     const raw = localStorage.getItem("userRoles");
     return raw ? JSON.parse(raw) : [];
+  },
+
+  getUserBallance: async (): Promise<UserProfile> => {
+    const response = await authService.authorizedFetch('/api/me');
+    if (!response.ok) {
+      throw new Error('Failed to fetch user profile');
+    }
+    return response.json();
   },
 
   async forgotPassword(email: string) {
@@ -169,7 +185,7 @@ export const authService = {
     });
 
     if (!res.ok) {
-      throw new Error("Щось пішло не так при запиті на відновлення");
+      throw new Error("Something went wrong");
     }
 
     return true;
@@ -203,11 +219,11 @@ export const authService = {
     });
 
     if (res.status === 409) {
-      throw new Error("Email вже використовується");
+      throw new Error("Email already in use");
     }
 
     if (!res.ok) {
-      throw new Error("Помилка реєстрації");
+      throw new Error("Error during registration");
     }
 
     return true;
