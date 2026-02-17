@@ -165,7 +165,8 @@ export const authService = {
 
   getUserRoles() {
     const raw = localStorage.getItem("userRoles");
-    return raw ? JSON.parse(raw) : [];
+    const roles = raw ? JSON.parse(raw) : [];
+    return roles.length > 0 ? roles[0] : "";
   },
 
   getUserBallance: async (): Promise<UserProfile> => {
