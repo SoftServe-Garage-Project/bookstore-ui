@@ -11,10 +11,17 @@ import TransactionsPage from "./pages/TransactionsPage/TransactionsPage";
 import PromoCodePage from "./pages/PromoCodePage/PromoCodePage";
 import { authService } from "./services/authService/authService";
 import { useEffect } from "react";
-import { ThemeProvider } from "./ThemeContext";
+import { useTheme } from "./ThemeContext";
 import AdminBooksPage from "./pages/AdminBooksPage/AdminBooksPage";
+import { useMemo } from "react";
+import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
+import { getTheme } from "./theme/theme";
 
 function App() {
+  const { theme } = useTheme();
+
+  const muiTheme = useMemo(() => getTheme(theme), [theme]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("auth_callback") === "true") {
@@ -38,7 +45,8 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider>
+    <MuiThemeProvider theme={muiTheme}>
+      <CssBaseline />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -54,7 +62,7 @@ function App() {
           <Route path="/editbook" element={<AdminBooksPage />} />
         </Routes>
       </BrowserRouter>
-    </ThemeProvider>
+    </MuiThemeProvider>
   );
 }
 
