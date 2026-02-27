@@ -20,7 +20,6 @@ export default function LoginPage() {
 
     try {
       await authService.login({ email, password });
-      navigate("/");
     } catch (err: any) {
       setError(err.message || "Помилка входу");
     } finally {
