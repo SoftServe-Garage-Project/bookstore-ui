@@ -55,16 +55,15 @@ const MainLayout = styled(Box)({
   position: "relative",
 });
 
-const ContentArea = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "component",
-})(({ theme }) => ({
+const ContentArea = styled(Box)(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(2),
+  width: "100%",
   color: theme.palette.text.primary,
   [theme.breakpoints.up("md")]: {
     padding: theme.spacing(4),
   },
-})) as any;
+}));
 
 const CardActionArea = styled(Box)(({ theme }) => ({
   width: "100%",
