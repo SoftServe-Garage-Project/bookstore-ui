@@ -117,4 +117,24 @@ export const orderService = {
 
     return responseData;
   },
+  updateOrderStatus: async (
+    orderId: number,
+    status: string
+  ): Promise<Order> => {
+    const response = await authService.authorizedFetch(
+      `${API_ORDERS_URL}/${orderId}/status`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update status: ${errorText}`);
+    }
+
+    return response.json();
+  },
 };
