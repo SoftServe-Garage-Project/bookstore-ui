@@ -84,9 +84,11 @@ export const orderService = {
   buyNow: async (
     bookId: number,
     quantity: number,
+    shippingAddress: string,
+    fullName: string,
     promoCode?: string
   ): Promise<Order> => {
-    const body: any = { bookId, quantity };
+    const body: any = { bookId, quantity, shippingAddress, fullName };
     if (promoCode) body.promoCode = promoCode;
 
     const response = await authService.authorizedFetch(
