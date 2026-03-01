@@ -1,4 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  TextField,
+  Button,
+  IconButton,
+  MenuItem,
+  Typography,
+  Grid,
+  Stack,
+  Divider,
+  alpha,
+  SxProps,
+  Theme,
+} from "@mui/material";
+import {
+  Close as CloseIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Save as SaveIcon,
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+
 import {
   Book,
   Author,
@@ -8,8 +34,64 @@ import {
   fetchGenres,
   fetchAgeGroups,
 } from "../../services/bookService/bookService";
-import Button from "../Button/Button";
-import styles from "./BookEditorModal.module.css";
+
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    backgroundColor: alpha(
+      theme.palette.mode === "dark" ? theme.palette.common.white : theme.palette.common.black,
+      0.04
+    ),
+    transition: "all 0.2s ease-in-out",
+    "& fieldset": { borderColor: theme.palette.divider },
+    "&:hover fieldset": { borderColor: alpha(theme.palette.primary.main, 0.4) },
+    "&.Mui-focused": {
+      backgroundColor: alpha(
+        theme.palette.mode === "dark" ? theme.palette.common.white : theme.palette.common.black,
+        0.07
+      ),
+      "& fieldset": { borderWidth: "1px !important" },
+    },
+  },
+  "& .MuiInputBase-input": {
+    "&:-webkit-autofill": {
+      WebkitBoxShadow: `0 0 0 100px ${theme.palette.background.paper} inset !important`,
+    },
+  },
+}));
+
+const SectionLabel = styled(Typography)(({ theme }) => ({
+  variant: "overline",
+  color: theme.palette.primary.main,
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  marginBottom: theme.spacing(1),
+  display: "block",
+}));
+
+const AuthorRow = styled(Box)(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  padding: theme.spacing(1.5),
+  borderRadius: theme.shape.borderRadius,
+}));
+
+
+const styles: Record<string, SxProps<Theme>> = {
+  dialogPaper: {
+    borderRadius: 3,
+    backgroundImage: "none",
+    bgcolor: "background.paper",
+  },
+  actions: {
+    p: 3,
+    justifyContent: "space-between",
+    borderTop: "1px solid",
+    borderColor: "divider",
+  },
+};
+
+
 
 interface BookEditorModalProps {
   isOpen: boolean;
@@ -34,24 +116,15 @@ const DEFAULT_BOOK: Omit<Book, "id"> = {
   coverImageUrl: "",
 };
 
-export default function BookEditorModal({
-  isOpen,
-  onClose,
-  book,
-  onSave,
-  onDelete,
-}: BookEditorModalProps) {
+export default function BookEditorModal({ isOpen, onClose, book, onSave, onDelete }: BookEditorModalProps) {
   const [formData, setFormData] = useState<Partial<Book>>(DEFAULT_BOOK);
-
-  const [languages, setLanguages] = useState<{ code: string; name: string }[]>(
-    []
-  );
+  const [languages, setLanguages] = useState<{ code: string; name: string }[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      const loadData = async () => {
+      (async () => {
         try {
           const [langs, gens, ages] = await Promise.all([
             fetchLanguages(),
@@ -61,11 +134,8 @@ export default function BookEditorModal({
           setLanguages(langs);
           setGenres(gens);
           setAgeGroups(ages);
-        } catch (err) {
-          console.error("Error loading dictionaries:", err);
-        }
-      };
-      loadData();
+        } catch (err) { console.error(err); }
+      })();
     }
   }, [isOpen]);
 
@@ -73,13 +143,8 @@ export default function BookEditorModal({
     if (isOpen) {
       if (book) {
         const data = JSON.parse(JSON.stringify(book));
-        if (languages.length > 0) {
-          const found = languages.find(
-            (l) => l.name === data.languageCode || l.code === data.languageCode
-          );
-          if (found) data.languageCode = found.code;
-        }
-
+        const found = languages.find(l => l.name === data.languageCode || l.code === data.languageCode);
+        if (found) data.languageCode = found.code;
         setFormData(data);
       } else {
         setFormData({ ...DEFAULT_BOOK });
@@ -87,13 +152,7 @@ export default function BookEditorModal({
     }
   }, [isOpen, book, languages]);
 
-  if (!isOpen) return null;
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -101,240 +160,103 @@ export default function BookEditorModal({
     }));
   };
 
-  const handleAuthorChange = (
-    index: number,
-    field: keyof Author,
-    value: string
-  ) => {
+  const handleAuthorChange = (index: number, field: keyof Author, value: string) => {
     const newAuthors = [...(formData.authors || [])];
     newAuthors[index] = { ...newAuthors[index], [field]: value };
     setFormData({ ...formData, authors: newAuthors });
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h2>{book ? `Edit: ${book.title}` : "Add New Book"}</h2>
-          <button className={styles.closeBtn} onClick={onClose}>
-            &times;
-          </button>
-        </div>
+    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md" PaperProps={{ sx: styles.dialogPaper }}>
+      <DialogTitle sx={{ fontWeight: 800, pr: 6 }}>
+        {book ? `Edit: ${book.title}` : "Add New Book"}
+        <IconButton onClick={onClose} sx={{ position: "absolute", right: 12, top: 12, color: "text.secondary" }}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSave(formData);
-          }}
-          className={styles.form}
-        >
-          <div className={styles.section}>
-            <label>Title</label>
-            <input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
+      <DialogContent dividers sx={{ py: 3 }}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12 }}>
+            <SectionLabel variant="overline">Basic Information</SectionLabel>
+            <Stack spacing={2.5}>
+              <StyledTextField fullWidth label="Book Title" name="title" value={formData.title} onChange={handleChange} required />
+              <StyledTextField fullWidth label="Description" name="description" value={formData.description} onChange={handleChange} multiline rows={3} />
+            </Stack>
+          </Grid>
 
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-            />
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <label>Authors</label>
-              <button
-                type="button"
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    authors: [
-                      ...(formData.authors || []),
-                      { firstName: "", lastName: "" },
-                    ],
-                  })
-                }
-                className={styles.addBtn}
-              >
-                + Add Author
-              </button>
-            </div>
-            {formData.authors?.map((author, index) => (
-              <div key={index} className={styles.row}>
-                <input
-                  placeholder="First Name"
-                  value={author.firstName}
-                  onChange={(e) =>
-                    handleAuthorChange(index, "firstName", e.target.value)
-                  }
-                  required
-                />
-                <input
-                  placeholder="Last Name"
-                  value={author.lastName}
-                  onChange={(e) =>
-                    handleAuthorChange(index, "lastName", e.target.value)
-                  }
-                  required
-                />
-                {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        authors: formData.authors?.filter(
-                          (_, i) => i !== index
-                        ),
-                      })
-                    }
-                    className={styles.removeBtn}
-                  >
-                    &times;
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className={styles.grid}>
-            <div className={styles.group}>
-              <label>Genre</label>
-              <select
-                name="genre"
-                value={formData.genre}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select genre</option>
-                {genres.map((g) => (
-                  <option key={g.name} value={g.name}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.group}>
-              <label>Age Group</label>
-              <select
-                name="ageGroup"
-                value={formData.ageGroup}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select age group</option>
-                {ageGroups.map((a) => (
-                  <option key={a.name} value={a.name}>
-                    {a.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.group}>
-              <label>Language</label>
-              <select
-                name="languageCode"
-                value={formData.languageCode}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select language</option>
-                {languages.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.group}>
-              <label>Published Year</label>
-              <input
-                type="number"
-                name="publishedYear"
-                value={formData.publishedYear}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className={styles.group}>
-              <label>Page Count</label>
-              <input
-                type="number"
-                name="pageCount"
-                value={formData.pageCount}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className={styles.grid}>
-            <div className={styles.group}>
-              <label>Price ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-              />
-            </div>
-            <div className={styles.group}>
-              <label>Discount (%)</label>
-              <input
-                type="number"
-                name="discountPercentage"
-                value={formData.discountPercentage}
-                onChange={handleChange}
-              />
-            </div>
-            <div className={styles.group}>
-              <label>Stock</label>
-              <input
-                type="number"
-                name="stockQuantity"
-                value={formData.stockQuantity}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <label>Cover Image URL</label>
-            <input
-              name="coverImageUrl"
-              value={formData.coverImageUrl || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className={styles.actions}>
-            {book && onDelete && (
-              <Button
-                type="button"
-                variant="error"
-                onClick={() => onDelete(book.id)}
-              >
-                Delete
+          <Grid size={{ xs: 12 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+              <SectionLabel variant="overline" sx={{ mb: 0 }}>Authors</SectionLabel>
+              <Button size="small" startIcon={<AddIcon />} onClick={() => setFormData({
+                ...formData,
+                authors: [...(formData.authors || []), { firstName: "", lastName: "" }],
+              })}>
+                Add Author
               </Button>
-            )}
-            <div className={styles.rightActions}>
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit">Save Book Data</Button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+            </Box>
+            <Stack spacing={1.5}>
+              {formData.authors?.map((author, index) => (
+                <AuthorRow key={index}>
+                  <StyledTextField label="First Name" size="small" fullWidth value={author.firstName} onChange={(e) => handleAuthorChange(index, "firstName", e.target.value)} />
+                  <StyledTextField label="Last Name" size="small" fullWidth value={author.lastName} onChange={(e) => handleAuthorChange(index, "lastName", e.target.value)} />
+                  {index > 0 && (
+                    <IconButton color="error" size="small" onClick={() => setFormData({
+                      ...formData,
+                      authors: formData.authors?.filter((_, i) => i !== index),
+                    })}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </AuthorRow>
+              ))}
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12 }}><Divider /></Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <StyledTextField select fullWidth label="Genre" name="genre" value={formData.genre} onChange={handleChange} required>
+              {genres.map((g) => <MenuItem key={g.name} value={g.name}>{g.name}</MenuItem>)}
+            </StyledTextField>
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <StyledTextField select fullWidth label="Age Group" name="ageGroup" value={formData.ageGroup} onChange={handleChange} required>
+              {ageGroups.map((a) => <MenuItem key={a.name} value={a.name}>{a.name}</MenuItem>)}
+            </StyledTextField>
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <StyledTextField select fullWidth label="Language" name="languageCode" value={formData.languageCode} onChange={handleChange} required>
+              {languages.map((l) => <MenuItem key={l.code} value={l.code}>{l.name}</MenuItem>)}
+            </StyledTextField>
+          </Grid>
+
+          <Grid size={{ xs: 6, md: 3 }}><StyledTextField fullWidth type="number" label="Year" name="publishedYear" value={formData.publishedYear} onChange={handleChange} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><StyledTextField fullWidth type="number" label="Pages" name="pageCount" value={formData.pageCount} onChange={handleChange} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><StyledTextField fullWidth type="number" label="Price ($)" name="price" value={formData.price} onChange={handleChange} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><StyledTextField fullWidth type="number" label="Stock" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} /></Grid>
+          <Grid size={{ xs: 12 }}>
+            <StyledTextField fullWidth label="Cover Image URL" name="coverImageUrl" value={formData.coverImageUrl || ""} onChange={handleChange} />
+          </Grid>
+          
+        </Grid>
+      </DialogContent>
+
+      <DialogActions sx={styles.actions}>
+        <Box>
+          {book && onDelete && (
+            <Button variant="outlined" color="error" startIcon={<DeleteIcon />} onClick={() => onDelete(book.id)}>
+              Delete Book
+            </Button>
+          )}
+        </Box>
+        <Stack direction="row" spacing={1.5}>
+          <Button color="inherit" onClick={onClose}>Cancel</Button>
+          <Button variant="contained" startIcon={<SaveIcon />} onClick={() => onSave(formData)} sx={{ px: 4, borderRadius: 2 }}>
+            Save Changes
+          </Button>
+        </Stack>
+      </DialogActions>
+    </Dialog>
   );
 }
