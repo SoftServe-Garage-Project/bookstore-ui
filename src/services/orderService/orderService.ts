@@ -16,6 +16,7 @@ export interface Order {
   paymentMethod: "BALANCE" | "CARD" | string;
   createdAt: string;
   items: OrderItem[];
+  fullName: string;
 }
 
 export interface OrderPageResponse {
@@ -59,7 +60,11 @@ export const orderService = {
     return response.json();
   },
 
-  confirmOrder: async (promoCode?: string): Promise<Order> => {
+  confirmOrder: async (
+    fullName: string,
+    shippingAddress: string,
+    promoCode?: string
+  ): Promise<Order> => {
     const response = await authService.authorizedFetch(
       `${API_ORDERS_URL}/checkout`,
       {
@@ -67,7 +72,11 @@ export const orderService = {
         headers: {
           "Content-Type": "application/json",
         },
-        body: promoCode ? JSON.stringify({ promoCode }) : JSON.stringify({}),
+        body: JSON.stringify({
+          fullName,
+          shippingAddress,
+          promoCode: promoCode || null,
+        }),
       }
     );
 
@@ -84,9 +93,11 @@ export const orderService = {
   buyNow: async (
     bookId: number,
     quantity: number,
+    fullName: string,
+    shippingAddress: string,
     promoCode?: string
   ): Promise<Order> => {
-    const body: any = { bookId, quantity };
+    const body: any = { bookId, quantity, fullName, shippingAddress };
     if (promoCode) body.promoCode = promoCode;
 
     const response = await authService.authorizedFetch(
@@ -114,5 +125,25 @@ export const orderService = {
     }
 
     return responseData;
+  },
+  updateOrderStatus: async (
+    orderId: number,
+    status: string
+  ): Promise<Order> => {
+    const response = await authService.authorizedFetch(
+      `${API_ORDERS_URL}/${orderId}/status`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update status: ${errorText}`);
+    }
+
+    return response.json();
   },
 };

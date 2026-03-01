@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import { Book, fetchBookById } from "../../services/bookService/bookService";
 import {
   reviewService,
@@ -21,7 +21,6 @@ import styles from "./BookDetails.module.css";
 
 const BookDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
 
   const [book, setBook] = useState<Book | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -34,6 +33,9 @@ const BookDetailsPage = () => {
   const [promoError, setPromoError] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [formError, setFormError] = useState("");
 
   const [newComment, setNewComment] = useState("");
   const [rating, setRating] = useState(5);
@@ -61,6 +63,9 @@ const BookDetailsPage = () => {
       setBook(bookData);
       setUserProfile(profileData);
       setReviews(reviewsData);
+      if (profileData && profileData.username) {
+        setFullName(profileData.username);
+      }
     } catch (error) {
       console.error("Data loading failed:", error);
     } finally {
@@ -102,11 +107,18 @@ const BookDetailsPage = () => {
 
   const handleBuyNow = async () => {
     if (!book || !hasEnoughFunds) return;
+    if (!fullName.trim() || !shippingAddress.trim()) {
+      setFormError("Name and Address are required for quick purchase");
+      return;
+    }
     setIsPurchasing(true);
+    setFormError("");
     try {
       const orderData = await orderService.buyNow(
         book.id,
         quantity,
+        fullName.trim(),
+        shippingAddress.trim(),
         promoCode.trim() || undefined
       );
       setLastOrder(orderData);
@@ -254,7 +266,31 @@ const BookDetailsPage = () => {
                       </div>
                     )}
                   </div>
-
+                  <div className={styles.deliveryFormQuick}>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={`${styles.promoInput} ${formError && !fullName ? styles.inputError : ""}`}
+                      style={{ marginBottom: "10px", width: "100%" }}
+                    />
+                    <textarea
+                      placeholder="Shipping Address"
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                      className={`${styles.promoInput} ${formError && !shippingAddress ? styles.inputError : ""}`}
+                      style={{
+                        marginBottom: "10px",
+                        width: "100%",
+                        resize: "none",
+                      }}
+                      rows={2}
+                    />
+                    {formError && (
+                      <p className={styles.promoErrorText}>{formError}</p>
+                    )}
+                  </div>
                   <div className={styles.controlsGrid}>
                     <div className={styles.inputGroup}>
                       <label>Qty</label>

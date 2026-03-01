@@ -26,6 +26,9 @@ const CartPage = () => {
   const [discountedTotal, setDiscountedTotal] = useState<number | null>(null);
   const [promoError, setPromoError] = useState("");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [fullName, setFullName] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [formError, setFormError] = useState("");
 
   const navigate = useNavigate();
   const timers = useRef<{ [key: number]: NodeJS.Timeout }>({});
@@ -54,6 +57,7 @@ const CartPage = () => {
       ]);
       setCartData(cart);
       setUserProfile(profile);
+      if (profile.username) setFullName(profile.username);
     } catch (error) {
       console.error("Data loading failed:", error);
     } finally {
@@ -85,10 +89,19 @@ const CartPage = () => {
   };
 
   const handleCheckout = async () => {
+    if (!fullName.trim() || !shippingAddress.trim()) {
+      setFormError("Please fill in all delivery details (Name and Address)");
+      return;
+    }
+
     try {
+      setFormError("");
       const orderData = await orderService.confirmOrder(
+        fullName.trim(),
+        shippingAddress.trim(),
         promoCode.trim() || undefined
       );
+
       setLastOrder(orderData);
       setModalState(orderData.status === "PAID" ? "success" : "error");
       if (orderData.status === "PAID") setCartData(null);
@@ -225,6 +238,37 @@ const CartPage = () => {
               <div className={styles.summaryCard}>
                 <h3 className={styles.summaryTitle}>Order Summary</h3>
 
+                <div className={styles.deliverySection}>
+                  <div className={styles.inputGroup}>
+                    <input
+                      type="text"
+                      className={`${styles.promoInput} ${formError && !fullName ? styles.inputError : ""}`}
+                      placeholder="Your Full Name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+                  <div
+                    className={styles.inputGroup}
+                    style={{ marginTop: "12px" }}
+                  >
+                    <textarea
+                      className={`${styles.promoInput} ${formError && !shippingAddress ? styles.inputError : ""}`}
+                      placeholder="Shipping Address (Street, City...)"
+                      rows={2}
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                      style={{ resize: "none", width: "100%", padding: "10px" }}
+                    />
+                  </div>
+                  {formError && <p className={styles.errorText}>{formError}</p>}
+                </div>
+
+                <hr
+                  className={styles.divider}
+                  style={{ margin: "20px 0", opacity: 0.1 }}
+                />
+
                 <div className={styles.promoSection}>
                   <div className={styles.promoInputWrapper}>
                     <input
@@ -345,7 +389,7 @@ const CartPage = () => {
                 </p>
               </div>
             ) : (
-              "Unable to process order. Please check your balance."
+              "Unable to process order. Please check your delivery details and balance."
             )
           }
         />
