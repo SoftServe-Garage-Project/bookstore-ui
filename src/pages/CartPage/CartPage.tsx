@@ -1,51 +1,82 @@
-import React, { useEffect, useState, useRef } from "react";
-import {
-  cartService,
-  CartResponse,
-} from "../../services/cartService/cartService";
-import { Order, orderService } from "../../services/orderService/orderService";
-import Button from "../../components/Button/Button";
-import Header from "../../components/Header/Header";
-import styles from "./CartPage.module.css";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { StatusModal } from "../../components/StatusModal/StatusModal";
-import { promoCodeService } from "../../services/promoCodeService/promoCodeService";
 import {
-  authService,
-  UserProfile,
-} from "../../services/authService/authService";
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  TextField,
+  Button as MuiButton,
+  IconButton,
+  Divider,
+  CircularProgress,
+  Stack,
+  Alert,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Remove as RemoveIcon,
+  DeleteOutline as DeleteIcon,
+  ShoppingBagOutlined as BagIcon,
+  AccountBalanceWalletOutlined as WalletIcon,
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+
+import { cartService, CartResponse } from "../../services/cartService/cartService";
+import { Order, orderService } from "../../services/orderService/orderService";
+import { promoCodeService } from "../../services/promoCodeService/promoCodeService";
+import { authService, UserProfile } from "../../services/authService/authService";
+
+import Header from "../../components/Header/Header";
+import { StatusModal, ModalType } from "../../components/StatusModal/StatusModal";
+
+
+const PageWrapper = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  minHeight: "100vh",
+  paddingBottom: theme.spacing(8),
+}));
+
+const SummaryCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  position: "sticky",
+  top: theme.spacing(4),
+  borderRadius: `${(theme.shape.borderRadius as number) * 2}px`,
+  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+}));
+
+const ItemCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+  borderRadius: `${(theme.shape.borderRadius as number) * 1.5}px`,
+  transition: "transform 0.2s",
+  "&:hover": {
+    transform: "translateY(-2px)",
+  },
+}));
 
 const CartPage = () => {
-  const [cartData, setCartData] = useState<CartResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalState, setModalState] = useState<"success" | "error">("success");
-  const [lastOrder, setLastOrder] = useState<Order | null>(null);
-  const [promoCode, setPromoCode] = useState("");
-  const [discountedTotal, setDiscountedTotal] = useState<number | null>(null);
-  const [promoError, setPromoError] = useState("");
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
   const navigate = useNavigate();
   const timers = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
-  const loadCart = async () => {
-    try {
-      const data = await cartService.getCartItems();
-      setCartData(data);
-    } catch (error) {
-      console.error("Failed to load cart:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [cartData, setCartData] = useState<CartResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  
+  const [fullName, setFullName] = useState("");
+  const [address, setAddress] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoError, setPromoError] = useState("");
+  const [discountedTotal, setDiscountedTotal] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadCart();
-  }, []);
+  // Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<ModalType>("success");
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     setLoading(true);
     try {
       const [cart, profile] = await Promise.all([
@@ -59,298 +90,294 @@ const CartPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [loadInitialData]);
 
-  const performUpdate = async (itemInCartId: number, newQuantity: number) => {
+  const handleUpdateQuantity = async (itemId: number, newQty: number) => {
     try {
-      await cartService.updateQuantity(itemInCartId, newQuantity);
-      await loadCart();
+      await cartService.updateQuantity(itemId, newQty);
+      const data = await cartService.getCartItems();
+      setCartData(data);
     } catch (error) {
       console.error("Update failed:", error);
-      loadCart();
     }
   };
 
-  const handleRemove = async (itemInCartId: number) => {
-    try {
-      await cartService.removeFromCart(itemInCartId);
-      loadCart();
-    } catch (error) {
-      alert("Could not remove item");
-    }
-  };
-
-  const handleCheckout = async () => {
-    try {
-      const orderData = await orderService.confirmOrder(
-        promoCode.trim() || undefined
-      );
-      setLastOrder(orderData);
-      setModalState(orderData.status === "PAID" ? "success" : "error");
-      if (orderData.status === "PAID") setCartData(null);
-      setIsModalOpen(true);
-    } catch (error) {
-      setModalState("error");
-      setIsModalOpen(true);
-    }
-  };
-
-  const changeQuantity = (itemInCartId: number, delta: number) => {
+  const changeQuantity = (itemId: number, delta: number) => {
     if (!cartData) return;
 
     const updatedItems = cartData.items.map((item) => {
-      if (item.id === itemInCartId) {
+      if (item.id === itemId) {
         const nextQty = Math.max(1, item.quantity + delta);
-        if (timers.current[itemInCartId])
-          clearTimeout(timers.current[itemInCartId]);
-        timers.current[itemInCartId] = setTimeout(() => {
-          performUpdate(itemInCartId, nextQty);
+        if (timers.current[itemId]) clearTimeout(timers.current[itemId]);
+        timers.current[itemId] = setTimeout(() => {
+          handleUpdateQuantity(itemId, nextQty);
         }, 800);
         return { ...item, quantity: nextQty };
       }
       return item;
     });
-
     setCartData({ ...cartData, items: updatedItems });
+  };
+
+  const handleRemove = async (itemId: number) => {
+    try {
+      await cartService.removeFromCart(itemId);
+      const data = await cartService.getCartItems();
+      setCartData(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleApplyPromo = async () => {
     if (!promoCode.trim() || !cartData) return;
-
     try {
       setPromoError("");
-      const data = await promoCodeService.validatePromo(
-        promoCode.trim(),
-        cartData.totalPrice
-      );
-
+      const data = await promoCodeService.validatePromo(promoCode.trim(), cartData.totalPrice);
       if (data.valid && data.finalAmount !== undefined) {
         setDiscountedTotal(data.finalAmount);
       } else {
-        setPromoError(data.message || "Promocode invalid");
+        setPromoError(data.message || "Invalid promo code");
         setDiscountedTotal(null);
       }
-    } catch (error: any) {
-      setPromoError(error.message || "Error while validating");
-      setDiscountedTotal(null);
+    } catch (err: any) {
+      setPromoError(err.message || "Validation error");
     }
   };
 
-  useEffect(() => {
-    if (!promoCode) {
-      setDiscountedTotal(null);
-      setPromoError("");
+  const handleCheckout = async () => {
+    if (!fullName || !address) {
+      setModalType("error");
+      setIsModalOpen(true);
+      return;
     }
-  }, [promoCode]);
+
+    try {
+      const orderData = await orderService.confirmOrder(fullName, address, promoCode.trim() || undefined);
+      setLastOrder(orderData);
+      setModalType(orderData.status === "PAID" ? "success" : "error");
+      if (orderData.status === "PAID") setCartData(null);
+      setIsModalOpen(true);
+    } catch (error) {
+      setModalType("error");
+      setIsModalOpen(true);
+    }
+  };
+
+  const finalPrice = discountedTotal ?? cartData?.totalPrice ?? 0;
+  const isBalanceLow = userProfile ? userProfile.balance < finalPrice : false;
 
   return (
-    <div className={styles.pageWrapper}>
-      <Header
-        isMenuOpen={isMenuOpen}
-        onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
-      />
-
-      <main className={styles.container}>
-        <header className={styles.pageHeader}>
-          <h1 className={styles.title}>Shopping Cart</h1>
-          <p className={styles.countInfo}>
-            {loading
-              ? "Loading..."
-              : `${cartData?.items.length || 0} ${cartData?.items.length === 1 ? "item" : "items"} in your bag`}
-          </p>
-        </header>
+    <PageWrapper>
+      <Header isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
+      
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Typography variant="h4" fontWeight={800} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <BagIcon fontSize="large" color="primary" /> Shopping Cart
+        </Typography>
 
         {loading ? (
-          <div className={styles.loader}>Loading cart...</div>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+            <CircularProgress size={60} />
+          </Box>
         ) : !cartData || cartData.items.length === 0 ? (
-          <div className={styles.emptyCard}>
-            <h2>Your cart is empty</h2>
-            <p>Looks like you haven't added any books yet.</p>
-            <Button onClick={() => navigate("/")}>Browse Collection</Button>
-          </div>
+          <Paper sx={{ textAlign: "center", py: 8, px: 2, borderRadius: 4 }}>
+            <BagIcon sx={{ fontSize: 80, color: "text.secondary", mb: 2, opacity: 0.2 }} />
+            <Typography variant="h5" gutterBottom>Your cart is empty</Typography>
+            <Typography color="text.secondary" sx={{ mb: 4 }}>Time to add some great books!</Typography>
+            <MuiButton variant="contained" size="large" onClick={() => navigate("/")} sx={{ px: 4, py: 1.5, borderRadius: 3 }}>
+              Browse Collection
+            </MuiButton>
+          </Paper>
         ) : (
-          <div className={styles.cartGrid}>
-            <section className={styles.itemsList}>
+          <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
+                {cartData.items.length} items in your bag
+              </Typography>
+              
               {cartData.items.map((item) => (
-                <div key={item.id} className={styles.cartItemCard}>
-                  <div className={styles.itemInfo}>
-                    <h3 className={styles.bookTitle}>{item.bookTitle}</h3>
-                    <p className={styles.pricePerOne}>
-                      ${item.price.toFixed(2)} per unit
-                    </p>
-                    <button
-                      className={styles.removeBtn}
-                      onClick={() => handleRemove(item.id)}
-                    >
-                      Remove from cart
-                    </button>
-                  </div>
-
-                  <div className={styles.itemActions}>
-                    <div className={styles.stepperContainer}>
-                      <span className={styles.label}>Quantity</span>
-                      <div className={styles.quantityStepper}>
-                        <button
-                          className={styles.stepBtn}
-                          onClick={() => changeQuantity(item.id, -1)}
-                        >
-                          −
-                        </button>
-                        <span className={styles.qtyValue}>{item.quantity}</span>
-                        <button
-                          className={styles.stepBtn}
-                          onClick={() => changeQuantity(item.id, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className={styles.priceSection}>
-                      <span className={styles.label}>Total</span>
-                      <span className={styles.itemTotalPrice}>
+                <ItemCard key={item.id} elevation={0} variant="outlined">
+                  <Grid container alignItems="center" spacing={2}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Typography variant="h6" fontWeight={700}>{item.bookTitle}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        ${item.price.toFixed(2)} per unit
+                      </Typography>
+                      <MuiButton 
+                        startIcon={<DeleteIcon />} 
+                        color="error" 
+                        size="small" 
+                        onClick={() => handleRemove(item.id)}
+                        sx={{ mt: 1, textTransform: 'none' }}
+                      >
+                        Remove
+                      </MuiButton>
+                    </Grid>
+                    
+                    <Grid size={{ xs: 6, sm: 3 }} sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <IconButton size="small" onClick={() => changeQuantity(item.id, -1)} sx={{ border: '1px solid #ddd' }}>
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography fontWeight={700} sx={{ minWidth: 20, textAlign: 'center' }}>
+                          {item.quantity}
+                        </Typography>
+                        <IconButton size="small" onClick={() => changeQuantity(item.id, 1)} sx={{ border: '1px solid #ddd' }}>
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </Grid>
+                    
+                    <Grid size={{ xs: 6, sm: 3 }} sx={{ textAlign: "right" }}>
+                      <Typography variant="h6" fontWeight={800} color="primary.main">
                         ${(item.price * item.quantity).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </ItemCard>
               ))}
-            </section>
+            </Grid>
 
-            <aside className={styles.summarySticky}>
-              <div className={styles.summaryCard}>
-                <h3 className={styles.summaryTitle}>Order Summary</h3>
+            <Grid size={{ xs: 12, md: 5 }} sx={{ position: "sticky", top: 20 }}>
+              <SummaryCard elevation={0}>
+                <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Order Summary</Typography>
+                
+                <Stack spacing={2.5}>
+                  <Typography variant="overline" color="text.secondary">Shipping Details</Typography>
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    variant="outlined"
+                    size="small"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={2}
+                    label="Shipping Address"
+                    variant="outlined"
+                    size="small"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                  />
 
-                <div className={styles.promoSection}>
-                  <div className={styles.promoInputWrapper}>
-                    <input
-                      type="text"
-                      className={`${styles.promoInput} ${promoError ? styles.inputError : ""}`}
-                      placeholder="Enter promo code"
+                  <Divider sx={{ my: 1 }} />
+
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <TextField
+                      fullWidth
+                      label="Promo Code"
+                      size="small"
                       value={promoCode}
+                      error={!!promoError}
+                      helperText={promoError}
                       onChange={(e) => setPromoCode(e.target.value)}
                     />
-                    <button
-                      className={styles.applyBtn}
+                    <MuiButton 
+                      variant="outlined" 
                       onClick={handleApplyPromo}
                       disabled={!promoCode.trim()}
+                      sx={{ height: 40 }}
                     >
                       Apply
-                    </button>
-                  </div>
-                  {promoError && (
-                    <p className={styles.errorText}>{promoError}</p>
-                  )}
-                </div>
+                    </MuiButton>
+                  </Box>
 
-                <div className={styles.summaryDetails}>
-                  <div className={styles.summaryRow}>
-                    <span>Subtotal</span>
-                    <span
-                      className={discountedTotal ? styles.strikethrough : ""}
-                    >
-                      ${cartData.totalPrice.toFixed(2)}
-                    </span>
-                  </div>
+                  <Stack spacing={1}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography color="text.secondary">Subtotal</Typography>
+                      <Typography fontWeight={600} sx={{ textDecoration: discountedTotal ? 'line-through' : 'none', opacity: discountedTotal ? 0.5 : 1 }}>
+                        ${cartData.totalPrice.toFixed(2)}
+                      </Typography>
+                    </Box>
+                    
+                    {discountedTotal && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography color="success.main">Promo Discount</Typography>
+                        <Typography color="success.main" fontWeight={600}>
+                          -${(cartData.totalPrice - discountedTotal).toFixed(2)}
+                        </Typography>
+                      </Box>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography color="text.secondary">Shipping</Typography>
+                      <Typography color="success.main" fontWeight={600}>Free</Typography>
+                    </Box>
 
-                  {discountedTotal && (
-                    <div
-                      className={`${styles.summaryRow} ${styles.discountRow}`}
-                    >
-                      <span>Promo Discount</span>
-                      <span>
-                        -${(cartData.totalPrice - discountedTotal).toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className={styles.summaryRow}>
-                    <span>Shipping</span>
-                    <span className={styles.free}>Free</span>
-                  </div>
-
-                  <div className={`${styles.summaryRow} ${styles.totalRow}`}>
-                    <span>Total Amount</span>
-                    <span className={styles.finalPrice}>
-                      ${(discountedTotal ?? cartData.totalPrice).toFixed(2)}
-                    </span>
-                  </div>
+                    <Divider sx={{ my: 1 }} />
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="h6" fontWeight={700}>Total</Typography>
+                      <Typography variant="h5" fontWeight={800} color="primary.main">
+                        ${finalPrice.toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </Stack>
 
                   {userProfile && (
-                    <div className={styles.balanceInfo}>
-                      <div className={styles.summaryRow}>
-                        <span>Your Balance</span>
-                        <span
-                          className={
-                            userProfile.balance <
-                            (discountedTotal ?? cartData.totalPrice)
-                              ? styles.lowBalance
-                              : styles.okBalance
-                          }
-                        >
-                          ${userProfile.balance.toFixed(2)}
-                        </span>
-                      </div>
-                      {userProfile.balance <
-                        (discountedTotal ?? cartData.totalPrice) && (
-                        <p className={styles.balanceWarning}>
-                          Insufficient funds
-                        </p>
-                      )}
-                    </div>
+                    <Alert 
+                      severity={isBalanceLow ? "error" : "info"} 
+                      icon={<WalletIcon />}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <span>Your Balance:</span>
+                        <strong>${userProfile.balance.toFixed(2)}</strong>
+                      </Box>
+                      {isBalanceLow && <Typography variant="caption">Insufficient funds to place order</Typography>}
+                    </Alert>
                   )}
-                </div>
 
-                <Button
-                  variant="primary"
-                  fullWidth
-                  size="lg"
-                  onClick={handleCheckout}
-                  disabled={
-                    userProfile
-                      ? userProfile.balance <
-                        (discountedTotal ?? cartData.totalPrice)
-                      : false
-                  }
-                >
-                  Confirm Checkout
-                </Button>
-              </div>
-            </aside>
-          </div>
+                  <MuiButton
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={handleCheckout}
+                    disabled={isBalanceLow || !fullName || !address}
+                    sx={{ py: 1.5, borderRadius: 3, fontWeight: 700, fontSize: '1.1rem' }}
+                  >
+                    Confirm Checkout
+                  </MuiButton>
+                </Stack>
+              </SummaryCard>
+            </Grid>
+          </Grid>
         )}
 
         <StatusModal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            if (modalState === "success") navigate("/orders");
+            if (modalType === "success") navigate("/orders");
           }}
-          type={modalState}
-          title={modalState === "success" ? "Order Placed!" : "Error"}
-          buttonText={modalState === "success" ? "Go to Orders" : "Try Again"}
+          type={modalType}
+          title={modalType === "success" ? "Order Placed Successfully!" : "Order Failed"}
           message={
-            modalState === "success" && lastOrder ? (
-              <div className={styles.modalContent}>
-                <p>
-                  Order <strong>#{lastOrder.id}</strong> has been successfully
-                  processed.
-                </p>
-                <p className={styles.modalTotal}>
-                  Paid: ${lastOrder.totalAmount.toFixed(2)}
-                </p>
-              </div>
+            modalType === "success" && lastOrder ? (
+              <Stack spacing={1}>
+                <Typography>Order <b>#{lastOrder.id}</b> is now processing.</Typography>
+                <Typography variant="h6" color="primary">Total Paid: ${lastOrder.totalAmount.toFixed(2)}</Typography>
+              </Stack>
+            ) : !fullName || !address ? (
+              "Please fill in your name and delivery address."
             ) : (
-              "Unable to process order. Please check your balance."
+              "Something went wrong. Please check your balance or try again later."
             )
           }
+          buttonText={modalType === "success" ? "View My Orders" : "Close"}
         />
-      </main>
-    </div>
+      </Container>
+    </PageWrapper>
   );
 };
 

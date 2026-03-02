@@ -24,6 +24,7 @@ export default function LoginPage() {
       setError(err.message || "Помилка входу");
     } finally {
       setLoading(false);
+      navigate("/");
     }
   };
 

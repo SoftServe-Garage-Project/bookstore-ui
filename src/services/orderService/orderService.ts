@@ -59,7 +59,7 @@ export const orderService = {
     return response.json();
   },
 
-  confirmOrder: async (promoCode?: string): Promise<Order> => {
+  confirmOrder: async (shippingAddress: string, fullName: string, promoCode?: string): Promise<Order> => {
     const response = await authService.authorizedFetch(
       `${API_ORDERS_URL}/checkout`,
       {
@@ -67,7 +67,7 @@ export const orderService = {
         headers: {
           "Content-Type": "application/json",
         },
-        body: promoCode ? JSON.stringify({ promoCode }) : JSON.stringify({}),
+        body: JSON.stringify({ shippingAddress, fullName, promoCode: promoCode || undefined })
       }
     );
 

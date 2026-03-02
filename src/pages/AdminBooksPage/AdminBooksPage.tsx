@@ -134,7 +134,7 @@ export default function AdminBooksPage() {
   const filters: BookFilterParams = useMemo(
     () => ({
       page: Number(searchParams.get("page")) || 0,
-      size: Number(searchParams.get("size")) || 12,
+      size: Number(searchParams.get("size")) || 20,
       sort: searchParams.get("sort") || "price,asc",
       genreName: searchParams.get("genreName") || undefined,
       title: searchParams.get("title") || undefined,
