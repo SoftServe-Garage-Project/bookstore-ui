@@ -1,18 +1,34 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Box,
+  Container,
+  Grid,
+  Typography,
+  CircularProgress,
+  Alert,
+  Toolbar,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+
 import { authService } from "../../services/authService/authService";
-import { fetchBooks, Book, PageResponse, BookFilterParams } from "../../services/bookService/bookService";
+import {
+  fetchBooks,
+  Book,
+  PageResponse,
+  BookFilterParams,
+} from "../../services/bookService/bookService";
 
 import Header from "../../components/Header/Header";
 import SidePanel from "../../components/SidePanel/SidePanel";
 import BookCard from "../../components/BookCard/BookCard";
 import Pagination from "../../components/Pagination/Pagination";
 
-import styles from "./HomePage.module.css";
-
 export default function HomePage() {
   const navigate = useNavigate();
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [books, setBooks] = useState<Book[]>([]);
@@ -20,7 +36,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(!isMobile);
 
   const filters: BookFilterParams = useMemo(() => {
     return {
@@ -34,7 +50,10 @@ export default function HomePage() {
 
   useEffect(() => {
     const loadBooks = async () => {
-      if (!authService.getUserEmail()) return;
+      if (!authService.getUserEmail()) {
+        navigate("/login");
+        return;
+      }
 
       setIsLoading(true);
       setError(null);
@@ -69,81 +88,110 @@ export default function HomePage() {
     setSearchParams(nextParams);
   };
 
-  const handleGenreChange = (genre: string | undefined) => {
-    updateQueryParams({
-      genreName: genre,
-      page: 0,
-    });
-  };
-
-  const handleTitleSearch = (title: string) => {
-    updateQueryParams({
-      title: title,
-      page: 0,
-    });
-  };
-
-  const handlePageChange = (pageNumber: number) => {
-    updateQueryParams({
-      page: pageNumber,
-    });
-  };
-
-  const handleSortChange = (sortValue: string) => {
-    updateQueryParams({
-      sort: sortValue,
-      page: 0,
-    });
-  };
-
   return (
-    <div className={styles.layout}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       <Header
         enableSideMenu={true}
-        isMenuOpen={isMenuOpen}
         onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
-      <div className={styles.mainContainer}>
+      <Box sx={{ display: "flex", flexGrow: 1, position: "relative" }}>
         <SidePanel
           selectedGenre={filters.genreName}
           selectedSort={filters.sort}
-          onGenreChange={handleGenreChange}
-          onTitleSearch={handleTitleSearch}
-          onSortChange={handleSortChange}
+          onGenreChange={(genre) =>
+            updateQueryParams({ genreName: genre, page: 0 })
+          }
+          onSortChange={(sort) => updateQueryParams({ sort, page: 0 })}
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
         />
 
-        <main className={styles.content}>
-          <div className={styles.contentHeader}>
-            <h2>Available Books</h2>
-            {isLoading && <span className={styles.loader}>Loading...</span>}
-          </div>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: { xs: 2, md: 4 },
+            transition: theme.transitions.create(["margin", "width"], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
+            ml: !isMobile && isMenuOpen ? "280px" : 0,
+            width: !isMobile && isMenuOpen ? `calc(100% - 280px)` : "100%",
+          }}
+        >
+          <Toolbar />
 
-          {error && <div className={styles.errorAlert}>{error}</div>}
+          <Container maxWidth="xl">
+            <Box
+              sx={{
+                mb: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography variant="h4" component="h1" fontWeight={800}>
+                Available Books
+                {filters.genreName && (
+                  <Typography
+                    component="span"
+                    variant="h5"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    / {filters.genreName}
+                  </Typography>
+                )}
+              </Typography>
 
-          {!isLoading && books.length === 0 && !error && (
-            <p className={styles.emptyState}>
-              No books found matching your criteria.
-            </p>
-          )}
+              {isLoading && <CircularProgress size={24} />}
+            </Box>
 
-          <div className={styles.booksGrid}>
-            {books.map((book) => {
-              return <BookCard key={book.id} book={book} />;
-            })}
-          </div>
+            {error && (
+              <Alert severity="error" sx={{ mb: 4, borderRadius: 3 }}>
+                {error}
+              </Alert>
+            )}
 
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={filters.page}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
-        </main>
-      </div>
-    </div>
+            {!isLoading && books.length === 0 && !error && (
+              <Box sx={{ textAlign: "center", py: 10 }}>
+                <Typography variant="h6" color="text.secondary">
+                  No books found matching your criteria.
+                </Typography>
+              </Box>
+            )}
+
+            <Grid container spacing={3}>
+              {books.map((book) => (
+                <Grid
+                  key={book.id}
+                  size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+                >
+                  <BookCard book={book} />
+                </Grid>
+              ))}
+            </Grid>
+
+            {totalPages > 1 && (
+              <Box sx={{ mt: 6, display: "flex", justifyContent: "center" }}>
+                <Pagination
+                  currentPage={filters.page}
+                  totalPages={totalPages}
+                  onPageChange={(page) => updateQueryParams({ page })}
+                />
+              </Box>
+            )}
+          </Container>
+        </Box>
+      </Box>
+    </Box>
   );
 }

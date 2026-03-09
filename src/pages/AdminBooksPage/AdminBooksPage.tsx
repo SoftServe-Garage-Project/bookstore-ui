@@ -78,23 +78,48 @@ const CardActionArea = styled(Box)(({ theme }) => ({
 const styles: Record<string, SxProps<Theme>> = {
   headerStack: {
     mb: 4,
+    flexDirection: { xs: "column", sm: "row" },
+    alignItems: { xs: "stretch", sm: "center" },
     justifyContent: "space-between",
-    alignItems: { xs: "flex-start", sm: "center" },
+    gap: { xs: 2, sm: 3 },
   },
   actionGroup: {
-    direction: { xs: "column", lg: "row" },
-    spacing: 1,
-    alignItems: "center",
+    flexDirection: { xs: "column", sm: "column", md: "row" },
+    alignItems: { xs: "stretch", sm: "stretch" },
+    justifyContent: { xs: "flex-start", sm: "flex-end" },
+    gap: { xs: 1.5, sm: 2 },
+    width: { xs: "100%", sm: "auto" },
   },
   catalogButtons: {
-    bgcolor: "background.paper",
-    boxShadow: (theme) =>
-      theme.palette.mode === "light" ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
+    display: "flex",
+    flexDirection: { xs: "row", sm: "row" },
+    width: { xs: "100%", sm: "auto" },
+    "& .MuiButton-root": {
+      flex: { xs: 1, sm: "none" },
+      py: { xs: 1.2, sm: 1, md: 1.2 },
+      px: { xs: 1, sm: 2, md: 3 },
+      fontSize: { xs: "0.9rem", sm: "0.9rem", md: "1rem" },
+      whiteSpace: "nowrap",
+      minWidth: { sm: "100px", md: "120px" },
+      justifyContent: "center",
+    },
   },
   addButton: {
     borderRadius: 2,
-    px: 3,
+    py: { xs: 1.2, sm: 1, md: 1.2 },
+    px: { xs: 2, sm: 3, md: 4 },
+    fontSize: { xs: "0.9rem", sm: "0.95rem", md: "1rem" },
     whiteSpace: "nowrap",
+    width: { xs: "100%", sm: "auto" },
+    minWidth: { sm: "140px", md: "160px" },
+    boxShadow: (theme) =>
+      theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
+    "&:hover": {
+      transform: "translateY(-2px)",
+      boxShadow: (theme) =>
+        theme.palette.mode === "light" ? "0 6px 16px rgba(0,0,0,0.2)" : "none",
+    },
+    transition: "all 0.2s ease-in-out",
   },
   loaderWrapper: {
     display: "flex",
@@ -251,7 +276,6 @@ export default function AdminBooksPage() {
           selectedGenre={filters.genreName}
           selectedSort={filters.sort}
           onGenreChange={(g) => updateQueryParams({ genreName: g, page: 0 })}
-          onTitleSearch={(t) => updateQueryParams({ title: t, page: 0 })}
           onSortChange={(s) => updateQueryParams({ sort: s, page: 0 })}
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
@@ -259,38 +283,52 @@ export default function AdminBooksPage() {
 
         <ContentArea as="main">
           <Container maxWidth="xl">
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              sx={styles.headerStack}
-              spacing={2}
-            >
-              <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            <Stack sx={styles.headerStack}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: "1.75rem", sm: "2rem", md: "2.25rem" },
+                  textAlign: { xs: "center", sm: "center" },
+                }}
+              >
                 Manage Library
               </Typography>
 
-              <Stack sx={styles.actionGroup} direction="row">
-                <ButtonGroup
-                  variant="outlined"
-                  size="small"
-                  sx={styles.catalogButtons}
-                >
+              <Stack sx={styles.actionGroup}>
+                <ButtonGroup variant="outlined" sx={styles.catalogButtons}>
                   <MuiButton
                     startIcon={<CategoryIcon />}
                     onClick={() => openCatalog("genres")}
                   >
-                    Genres
+                    <Box
+                      component="span"
+                      sx={{ display: { xs: "inline", sm: "inline" } }}
+                    >
+                      Genres
+                    </Box>
                   </MuiButton>
                   <MuiButton
                     startIcon={<LanguageIcon />}
                     onClick={() => openCatalog("languages")}
                   >
-                    Langs
+                    <Box
+                      component="span"
+                      sx={{ display: { xs: "inline", sm: "inline" } }}
+                    >
+                      Languages
+                    </Box>
                   </MuiButton>
                   <MuiButton
                     startIcon={<FaceIcon />}
                     onClick={() => openCatalog("ageGroups")}
                   >
-                    Ages
+                    <Box
+                      component="span"
+                      sx={{ display: { xs: "inline", sm: "inline" } }}
+                    >
+                      Age Groups
+                    </Box>
                   </MuiButton>
                 </ButtonGroup>
 

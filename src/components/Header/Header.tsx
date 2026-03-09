@@ -1,5 +1,5 @@
 import { useState, MouseEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -29,6 +29,7 @@ import {
   Edit,
   Logout,
   Login,
+  ArrowBack,
 } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import { authService } from "../../services/authService/authService";
@@ -130,21 +131,28 @@ interface HeaderProps {
 
 export default function Header({ enableSideMenu, onToggleMenu }: HeaderProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const muiTheme = useMuiTheme();
   const { theme, toggleTheme } = useTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+
   const [searchValue, setSearchValue] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const userEmail = authService.getUserEmail();
   const isAdmin = authService.getUserRoles() === "ROLE_ADMIN";
+
+  const isHomePage = location.pathname === "/";
 
   const handleProfileMenuOpen = (event: MouseEvent<HTMLElement>) =>
     setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+
   const handleSearch = () => {
     if (searchValue.trim())
       navigate(`/?title=${encodeURIComponent(searchValue.trim())}`);
   };
+
   const navigateAndClose = (path: string) => {
     navigate(path);
     handleMenuClose();
@@ -161,17 +169,34 @@ export default function Header({ enableSideMenu, onToggleMenu }: HeaderProps) {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={styles.toolbar}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {enableSideMenu && (
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                onClick={onToggleMenu}
-                sx={{ mr: 1, display: { md: "none" } }}
-              >
-                <MenuIcon />
-              </IconButton>
+            {isMobile && (
+              <>
+                {!isHomePage ? (
+                  <IconButton
+                    size="large"
+                    edge="start"
+                    color="inherit"
+                    onClick={() => navigate(-1)}
+                    sx={{ mr: 1 }}
+                  >
+                    <ArrowBack />
+                  </IconButton>
+                ) : (
+                  enableSideMenu && (
+                    <IconButton
+                      size="large"
+                      edge="start"
+                      color="inherit"
+                      onClick={onToggleMenu}
+                      sx={{ mr: 1 }}
+                    >
+                      <MenuIcon />
+                    </IconButton>
+                  )
+                )}
+              </>
             )}
+
             <LogoText variant="h6" onClick={() => navigate("/")}>
               Bookstore
             </LogoText>
